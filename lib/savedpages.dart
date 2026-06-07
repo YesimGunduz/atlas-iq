@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:globeinfo/widgets/saved_data.dart';
-
+import 'widgets/saved_data.dart';
+import 'widgets/footer.dart';
+import 'countryservices.dart';
+import 'detailspage.dart';
 
 class SavedPage extends StatefulWidget {
   const SavedPage({super.key});
 
   @override
-  State createState() => _SavedPageState();
+  State<SavedPage> createState() => _SavedPageState();
 }
 
 class _SavedPageState extends State<SavedPage> {
-
   @override
   Widget build(BuildContext context) {
-    final savedCountries = SavedData.savedCountries;
+    final savedCountries = SavedData.savedCountries.reversed.toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFF162440),
@@ -27,88 +28,165 @@ class _SavedPageState extends State<SavedPage> {
           "Saved Countries",
           style: TextStyle(
             color: Color(0xFF8FB3DA),
+            fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
 
       body: savedCountries.isEmpty
-          ? _emptyState()
-          : ListView.builder(
+          ? const Center(
+              child: Text(
+                "No Saved Countries",
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : Padding(
               padding: const EdgeInsets.all(16),
-              itemCount: savedCountries.length,
-              itemBuilder: (context, index) {
-                final country = savedCountries[index];
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: savedCountries.length,
+                      itemBuilder: (context, index) {
+                        final item = savedCountries[index];
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0F1C33),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF223B5E)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.flag,
-                        color: Color(0xFF8FB3DA),
-                      ),
-                      const SizedBox(width: 12),
+                        return Dismissible(
+                          key: Key(item.name),
+                          direction: DismissDirection.endToStart,
 
-                      Expanded(
-                        child: Text(
-                          country,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                          onDismissed: (_) {
+                            setState(() {
+                              SavedData.savedCountries.removeWhere(
+                                (e) => e.name == item.name,
+                              );
+                            });
+                          },
+
+                          background: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.only(right: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            alignment: Alignment.centerRight,
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ),
 
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: Color(0xFF8FB3DA),
-                      ),
-                    ],
+                          // ⭐ TIKLANABİLİR KART BURASI
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CountryDetailPage(query: item.name),
+                                ),
+                              );
+                            },
+
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color.fromARGB(255, 168, 194, 213),
+                                    Color(0xFF162440),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFF223B5E),
+                                ),
+                              ),
+
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(6),
+                                    child: Image.network(
+                                      item.flag,
+                                      width: 55,
+                                      height: 38,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+
+                                  const SizedBox(width: 12),
+
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.name,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 4),
+
+                                        Text.rich(
+                                          TextSpan(
+                                            text: "${item.capital}, ",
+                                            style: const TextStyle(
+                                              color: Color.fromARGB(
+                                                255,
+                                                41,
+                                                54,
+                                                68,
+                                              ),
+                                              fontSize: 13,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: item.continent,
+                                                style: const TextStyle(
+                                                  color: Colors.greenAccent,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                );
-              },
-            ),
-    );
-  }
 
-  Widget _emptyState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.bookmark_border,
-            size: 80,
-            color: Color(0xFF8FB3DA),
-          ),
-          SizedBox(height: 12),
-          Text(
-            "No Saved Countries",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+                  const SizedBox(height: 10),
+
+                  Text(
+                    "${savedCountries.length} Countries Saved",
+                    style: const TextStyle(
+                      color: Color(0xFF8FB3DA),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            "Tap the star icon to save countries",
-            style: TextStyle(
-              color: Color(0xFF8FB3DA),
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
+
+      bottomNavigationBar: const SizedBox(height: 80, child: HomeFooter()),
     );
   }
 }

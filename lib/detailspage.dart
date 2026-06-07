@@ -311,30 +311,42 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
                           ),
                           const SizedBox(height: 2),
 
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isSaved = !isSaved;
+                         GestureDetector(
+  onTap: () {
+    setState(() {
+      isSaved = !isSaved;
 
-                                final name = country?['name']['common'] ?? "";
+      final name = country?['name']['common'] ?? "";
 
-                                if (isSaved) {
-                                  if (!SavedData.savedCountries.contains(
-                                    name,
-                                  )) {
-                                    SavedData.savedCountries.add(name);
-                                  }
-                                } else {
-                                  SavedData.savedCountries.remove(name);
-                                }
-                              });
-                            },
-                            child: Icon(
-                              isSaved ? Icons.star : Icons.star_border,
-                              color: const Color.fromARGB(255, 235, 249, 81),
-                              size: 22,
-                            ),
-                          ),
+      if (isSaved) {
+        final exists = SavedData.savedCountries
+            .any((item) => item.name == name);
+
+        if (!exists) {
+          SavedData.savedCountries.add(
+            SavedCountry(
+              name: name,
+              capital: country?['capital'] != null
+                  ? country!['capital'][0]
+                  : "-",
+              flag: country?['flags']['png'] ?? "",
+              continent: country?['region'] ?? "-",
+            ),
+          );
+        }
+      } else {
+        SavedData.savedCountries.removeWhere(
+          (item) => item.name == name,
+        );
+      }
+    });
+  },
+  child: Icon(
+    isSaved ? Icons.star : Icons.star_border,
+    color: const Color.fromARGB(255, 235, 249, 81),
+    size: 22,
+  ),
+)
                         ],
                       ),
                     ),
