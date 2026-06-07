@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:globeinfo/widgets/footer.dart';
 import 'widgets/header.dart';
+import 'widgets/filtersheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -49,8 +50,7 @@ class _HomePageState extends State<HomePage> {
 
   void _updateState() {
     setState(() {
-      _isActive =
-          _searchCtrl.text.isNotEmpty || _focusNode.hasFocus;
+      _isActive = _searchCtrl.text.isNotEmpty || _focusNode.hasFocus;
     });
   }
 
@@ -74,14 +74,12 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        width: double.infinity,
+        width: double.maxFinite,
+        height: 180,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFF121B2E),
-              Color(0xFF172238),
-            ],
+            colors: [Color(0xFF121B2E), Color(0xFF172238)],
           ),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: const Color(0x334F8CFF)),
@@ -92,7 +90,7 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 Icon(Icons.explore, color: Color(0xFF3B82F6), size: 20),
-                SizedBox(width: 8),
+                SizedBox(width: 10),
                 Text(
                   "Explore The World",
                   style: TextStyle(
@@ -103,24 +101,107 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 12),
             Text(
               "Discover countries, flags, languages with live data",
-              style: TextStyle(
-                color: Color(0xFF9DB2CE),
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Color(0xFF9DB2CE), fontSize: 13),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 22),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _StatBox(icon: Icons.public, value: "195", label: "Countries"),
                 _StatBox(icon: Icons.flag, value: "250+", label: "Flags"),
-                _StatBox(icon: Icons.language, value: "7000+", label: "Languages"),
+                _StatBox(
+                  icon: Icons.language,
+                  value: "7000+",
+                  label: "Languages",
+                ),
                 _StatBox(icon: Icons.flash_on, value: "LIVE", label: "Data"),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmartTravelCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromARGB(255, 75, 131, 168),
+              Color.fromARGB(255, 175, 184, 190),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0x334F8CFF)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.public, color: Color.fromARGB(255, 7, 53, 89)),
+            const SizedBox(width: 14),
+
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Smart Travel Mode",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "Discover visa, passport & ID options",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            GestureDetector(
+  onTap: () async {
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF0A1628),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const FilterSheet(),
+    );
+
+    if (result != null) {
+      print("Selected Filters: $result");
+
+      // 🔥 İLERİDE BURADA SONUÇ SAYFASINA GİDECEKSİN
+      // Navigator.pushNamed(context, '/results', arguments: result);
+    }
+  },
+  child: Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    decoration: BoxDecoration(
+      color: const Color.fromARGB(255, 7, 53, 89),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: const Text(
+      "Explore Rules",
+      style: TextStyle(color: Colors.white),
+    ),
+  ),
+),
           ],
         ),
       ),
@@ -154,9 +235,7 @@ class _HomePageState extends State<HomePage> {
 
                 decoration: InputDecoration(
                   hintText: _isActive ? "" : _currentHint,
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF7A9CC4),
-                  ),
+                  hintStyle: const TextStyle(color: Color(0xFF7A9CC4)),
                   border: InputBorder.none,
                 ),
               ),
@@ -197,8 +276,10 @@ class _HomePageState extends State<HomePage> {
             const HomeHeader(),
             const SizedBox(height: 16),
             _buildHeroCard(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 22),
             _buildSearchBar(),
+            const SizedBox(height: 24),
+            _buildSmartTravelCard(),
             const Spacer(),
             const HomeFooter(),
           ],
@@ -237,10 +318,7 @@ class _StatBox extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF8AA4C2),
-            fontSize: 11,
-          ),
+          style: const TextStyle(color: Color(0xFF8AA4C2), fontSize: 11),
         ),
       ],
     );
