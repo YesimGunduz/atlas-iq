@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:globeinfo/countryservices.dart';
+import 'package:globeinfo/filterresultpage.dart';
 import 'package:globeinfo/widgets/footer.dart';
+import 'package:http/http.dart' as http;
 import 'widgets/header.dart';
 import 'widgets/filtersheet.dart';
 
@@ -28,10 +32,13 @@ class _HomePageState extends State<HomePage> {
   Timer? _hintTimer;
 
   bool _isActive = false;
+  
+  late List<Map<String, dynamic>> countries = [];
 
   @override
   void initState() {
     super.initState();
+    loadCountries();
 
     _currentHint = _hints[_hintIndex];
 
@@ -60,15 +67,37 @@ class _HomePageState extends State<HomePage> {
 
     Navigator.pushNamed(context, '/detail', arguments: query);
   }
+void loadCountries() async {
+  print("🔥 TEST MODE BAŞLADI");
 
-  @override
-  void dispose() {
-    _hintTimer?.cancel();
-    _searchCtrl.dispose();
-    _focusNode.dispose();
-    super.dispose();
+  final response = await http.get(
+    Uri.parse('https://restcountries.com/v3.1/all?fields=name,cca2,capital,currencies'),
+  );
+
+  print("🔥 STATUS: ${response.statusCode}");
+
+  if (response.statusCode != 200) {
+    print("❌ API ERROR: ${response.body}");
+    return;
   }
 
+  final List data = jsonDecode(response.body);
+
+  print("🔥 RAW LENGTH: ${data.length}");
+
+  setState(() {
+    countries = data.map((c) {
+      return {
+        "name": c["name"]["common"],
+        "code": c["cca2"],
+        "visaType": "Visa Free",
+        "entryType": "ID Only",
+      };
+    }).toList();
+  });
+
+  print("🔥 FINAL COUNTRIES: ${countries.length}");
+}
   // ---------------- HERO ----------------
   Widget _buildHeroCard() {
     return Padding(
@@ -125,6 +154,38 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  void openFilter() async {
+
+  // 🔥 SAFETY CHECK (çok önemli)
+  if (countries.isEmpty) {
+    print("❌ Countries not loaded yet!");
+    return;
+  }
+
+  final result = await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: const Color(0xFF0A1628),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => const FilterSheet(),
+  );
+
+  if (result == null) return;
+
+  print("Selected Filters: $result");
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => FilterResultPage(
+        allCountries: countries,
+        filters: result,
+      ),
+    ),
+  );
+}
 
   Widget _buildSmartTravelCard() {
     return Padding(
@@ -170,8 +231,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-
-            GestureDetector(
+GestureDetector(
   onTap: () async {
     final result = await showModalBottomSheet(
       context: context,
@@ -183,12 +243,19 @@ class _HomePageState extends State<HomePage> {
       builder: (context) => const FilterSheet(),
     );
 
-    if (result != null) {
-      print("Selected Filters: $result");
+    if (result == null) return;
 
-      // 🔥 İLERİDE BURADA SONUÇ SAYFASINA GİDECEKSİN
-      // Navigator.pushNamed(context, '/results', arguments: result);
-    }
+    print("Selected Filters: $result");
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FilterResultPage(
+          allCountries: countries, // 🔥 önemli
+          filters: result,
+        ),
+      ),
+    );
   },
   child: Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -201,7 +268,7 @@ class _HomePageState extends State<HomePage> {
       style: TextStyle(color: Colors.white),
     ),
   ),
-),
+)
           ],
         ),
       ),
