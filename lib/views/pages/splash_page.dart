@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   /// Splash ekranı beklerken veriyi gerçekten indiriyoruz.
-  /// Böylece "Loading world data..." yazısı doğru oluyor ve ana sayfa
+  /// Böylece "Dünya verileri yükleniyor" yazısı doğru oluyor ve ana sayfa
   /// açıldığında liste hazır geliyor.
   Future<void> _boot() async {
     final started = DateTime.now();
@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text(
-                    "Explore global countries, flags, and key statistics in real time",
+                    "Ülkeleri, bayrakları ve güncel bilgileri tek yerde keşfet",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color.fromARGB(255, 249, 249, 249),
@@ -124,7 +124,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 const SizedBox(height: 10),
 
                 const Text(
-                  "Loading world data...",
+                  "Dünya verileri yükleniyor...",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,

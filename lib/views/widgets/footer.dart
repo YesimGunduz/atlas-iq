@@ -84,8 +84,8 @@ class HomeFooter extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _item(context, Icons.home, "Home", 0, () => _goHome(context)),
-              _item(context, Icons.star, "Saved", 1, () => _goSaved(context)),
+              _item(context, Icons.home, "Ana sayfa", 0, () => _goHome(context)),
+              _item(context, Icons.star, "Kaydedilenler", 1, () => _goSaved(context)),
             ],
           ),
         ),

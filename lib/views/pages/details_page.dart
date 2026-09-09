@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/data/labels.dart';
 import 'package:globeinfo/data/saved_data.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
@@ -439,7 +440,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
 
           infoCard("Saat farkı", timeDifference),
           infoCard("Başkent", CountryService.capitalOf(country!)),
-          infoCard("Bölge", (country!['region'] ?? "-").toString()),
+          infoCard("Bölge", Labels.region(country!['region']?.toString())),
           infoCard("Nüfus", getPopulation()),
           infoCard("Diller", getLanguages()),
           infoCard("Para birimi", getCurrency()),
@@ -448,8 +449,9 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           infoCard("Saat dilimi", getTimezone()),
 
           if (visa != null)
-            infoCard("Vize", visa, valueColor: _visaColor(visa)),
-          if (entry != null) infoCard("Giriş", entry),
+            infoCard("Vize", Labels.visa(visa),
+                valueColor: _visaColor(visa)),
+          if (entry != null) infoCard("Giriş", Labels.entry(entry)),
 
           if (note != null)
             Container(

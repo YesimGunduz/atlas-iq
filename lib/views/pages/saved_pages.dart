@@ -24,7 +24,7 @@ class _SavedPageState extends State<SavedPage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(0xFF8FB3DA)),
         title: const Text(
-          "Saved Countries",
+          "Kaydedilenler",
           style: TextStyle(
             color: Color(0xFF8FB3DA),
             fontSize: 18,
@@ -34,10 +34,43 @@ class _SavedPageState extends State<SavedPage> {
       ),
 
       body: savedCountries.isEmpty
-          ? const Center(
-              child: Text(
-                "No Saved Countries",
-                style: TextStyle(color: Colors.white),
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star_border,
+                        color: Color(0xFF7FA6D6), size: 48),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Henüz kayıtlı ülke yok",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Bir ülkenin sayfasını açıp sağ üstteki yıldıza "
+                      "dokunarak buraya ekleyebilirsin.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF8AA4C2),
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton.icon(
+                      onPressed: () => Navigator.popUntil(
+                          context, (route) => route.isFirst),
+                      icon: const Icon(Icons.search),
+                      label: const Text("Ülke ara"),
+                    ),
+                  ],
+                ),
               ),
             )
           : Padding(
@@ -182,7 +215,7 @@ class _SavedPageState extends State<SavedPage> {
                   const SizedBox(height: 10),
 
                   Text(
-                    "${savedCountries.length} Countries Saved",
+                    "${savedCountries.length} ülke kayıtlı",
                     style: const TextStyle(
                       color: Color(0xFF8FB3DA),
                       fontSize: 13,

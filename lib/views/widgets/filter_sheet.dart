@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/data/labels.dart';
 
 class FilterSheet extends StatefulWidget {
   const FilterSheet({super.key});
@@ -97,7 +98,7 @@ class _FilterSheetState extends State<FilterSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Filter Countries",
+            "Ülkeleri Filtrele",
             style: TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -108,13 +109,13 @@ class _FilterSheetState extends State<FilterSheet> {
           const SizedBox(height: 20),
 
           // ENTRY TYPE
-          const Text("Entry Type",
+          const Text("Giriş belgesi",
               style: TextStyle(color: Colors.white)),
 
           Wrap(
             children: entryOptions.map((e) {
               return chip(
-                e,
+                Labels.entry(e),
                 entryType == e,
                 () {
                   setState(() {
@@ -129,13 +130,13 @@ class _FilterSheetState extends State<FilterSheet> {
           const SizedBox(height: 12),
 
           // VISA TYPE
-          const Text("Visa Type",
+          const Text("Vize türü",
               style: TextStyle(color: Colors.white)),
 
           Wrap(
             children: visaOptions.map((v) {
               return chip(
-                v,
+                Labels.visa(v),
                 visaType == v,
                 () {
                   setState(() {
@@ -154,14 +155,14 @@ class _FilterSheetState extends State<FilterSheet> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: clear,
-                  child: const Text("Clear"),
+                  child: const Text("Temizle"),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: ElevatedButton(
                   onPressed: applyFilters,
-                  child: const Text("Apply"),
+                  child: const Text("Uygula"),
                 ),
               ),
             ],

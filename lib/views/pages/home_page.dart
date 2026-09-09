@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:globeinfo/data/labels.dart';
 import 'package:globeinfo/data/country_names_tr.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
@@ -71,10 +72,10 @@ class _HomePageState extends State<HomePage> {
   String? _entryFilter;
 
   final List<String> _hints = [
-    "Search country or flag...",
-    "Discover countries in real time",
-    "Search any country instantly",
-    "Get live country data",
+    "Ülke ya da bayrak ara...",
+    "Ülkeleri anlık olarak keşfet",
+    "İstediğin ülkeyi hemen bul",
+    "Güncel ülke bilgileri",
   ];
 
   int _hintIndex = 0;
@@ -271,6 +272,19 @@ class _HomePageState extends State<HomePage> {
     _applyFilters();
   }
 
+  /// Elimizdeki ülkelerde geçen benzersiz dil sayısı.
+  /// Önceden "7000+" diye sabit bir sayı yazılıydı; artık gerçek veri.
+  int get _languageCount {
+    final all = <String>{};
+    for (final c in allCountries) {
+      final langs = c["languages"];
+      if (langs is List) {
+        all.addAll(langs.map((e) => e.toString()));
+      }
+    }
+    return all.length;
+  }
+
   // ---------------- HERO ----------------
   Widget _buildHeroCard() {
     final countryCount = allCountries.isEmpty ? "195" : "${allCountries.length}";
@@ -294,7 +308,7 @@ class _HomePageState extends State<HomePage> {
                 Icon(Icons.explore, color: Color(0xFF3B82F6), size: 20),
                 SizedBox(width: 10),
                 Text(
-                  "Explore The World",
+                  "Dünyayı Keşfet",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -305,7 +319,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 12),
             const Text(
-              "Discover countries, flags, languages with live data",
+              "Ülkeler, bayraklar ve diller — güncel verilerle",
               style: TextStyle(color: Color(0xFF9DB2CE), fontSize: 13),
             ),
             const SizedBox(height: 22),
@@ -315,22 +329,22 @@ class _HomePageState extends State<HomePage> {
                 _StatBox(
                   icon: Icons.public,
                   value: countryCount,
-                  label: "Countries",
+                  label: "Ülke",
                 ),
                 _StatBox(
                   icon: Icons.card_travel,
                   value: "${VisaDatabase.recordCount}",
-                  label: "Visa Rules",
+                  label: "Vize kaydı",
                 ),
-                const _StatBox(
+                _StatBox(
                   icon: Icons.language,
-                  value: "7000+",
-                  label: "Languages",
+                  value: "$_languageCount",
+                  label: "Dil",
                 ),
                 _StatBox(
                   icon: Icons.flash_on,
-                  value: isLoading ? "..." : "LIVE",
-                  label: "Data",
+                  value: isLoading ? "..." : "GÜNCEL",
+                  label: "Veri",
                 ),
               ],
             ),
@@ -424,7 +438,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Smart Travel Mode",
+                    "Seyahat Modu",
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -432,7 +446,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    "Discover visa, passport & ID options",
+                    "Vize, pasaport ve kimlik kurallarına bak",
                     style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ],
@@ -447,7 +461,7 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Text(
-                  "Explore Rules",
+                  "Kuralları gör",
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -473,9 +487,11 @@ class _HomePageState extends State<HomePage> {
               runSpacing: 8,
               children: [
                 if (_visaFilter != null)
-                  _filterChip(_visaFilter!, visaColor(_visaFilter!)),
+                  _filterChip(
+                      Labels.visa(_visaFilter), visaColor(_visaFilter!)),
                 if (_entryFilter != null)
-                  _filterChip(_entryFilter!, const Color(0xFF4DA3FF)),
+                  _filterChip(
+                      Labels.entry(_entryFilter), const Color(0xFF4DA3FF)),
               ],
             ),
           ),
@@ -698,7 +714,7 @@ class _HomePageState extends State<HomePage> {
                   border: Border.all(color: visaColor(visa)),
                 ),
                 child: Text(
-                  visa,
+                  Labels.visa(visa),
                   style: TextStyle(color: visaColor(visa), fontSize: 10),
                 ),
               ),

@@ -1,3 +1,5 @@
+import 'package:globeinfo/data/labels.dart';
+
 /// Vize / giriş tipine göre ülke filtreleme.
 ///
 /// Alan adları assets/data/countries_database.json ile birebir aynı:
@@ -26,8 +28,8 @@ class VisaEngine {
   /// Filtreye uyan ülke yoksa kullanıcıya gösterilecek açıklama.
   static String emptyMessage(String? visaType, String? entryType) {
     final parts = <String>[
-      if (visaType != null) visaType,
-      if (entryType != null) entryType,
+      if (visaType != null) Labels.visa(visaType),
+      if (entryType != null) Labels.entry(entryType),
     ];
 
     if (parts.isEmpty) return "Ülke bulunamadı";

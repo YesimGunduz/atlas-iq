@@ -27,7 +27,7 @@ class HomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "WELCOME BACK",
+                  "HOŞ GELDİN",
                   style: TextStyle(
                     color: Color(0xFF3B82F6),
                     fontSize: 12,
