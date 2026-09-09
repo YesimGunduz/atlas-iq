@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/data/country_names_tr.dart';
 import 'package:globeinfo/data/labels.dart';
@@ -49,7 +50,7 @@ class _StatBox extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(color: Color(0xFF8AA4C2), fontSize: 11),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
         ),
       ],
     );
@@ -167,9 +168,10 @@ class _HomePageState extends State<HomePage> {
 
   // ---------------- SEARCH + FILTER ----------------
   void _onQueryChanged() {
-    setState(() {
-      _isActive = _searchCtrl.text.isNotEmpty || _focusNode.hasFocus;
-    });
+    // Önceden burada bir setState, hemen ardından _applyFilters içinde bir
+    // tane daha vardı; her harfte arayüz iki kez kuruluyordu.
+    // _isActive'i önce güncelleyip tek setState'e bırakıyoruz.
+    _isActive = _searchCtrl.text.isNotEmpty || _focusNode.hasFocus;
     _applyFilters();
   }
 
@@ -210,7 +212,7 @@ class _HomePageState extends State<HomePage> {
         ..showSnackBar(
           SnackBar(
             duration: const Duration(seconds: 2),
-            backgroundColor: const Color(0xFF162440),
+            backgroundColor: AppColors.surface,
             content: Text(
               "\"$query\" ile eşleşen ülke yok",
               style: const TextStyle(color: Colors.white),
@@ -252,7 +254,7 @@ class _HomePageState extends State<HomePage> {
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF0A1628),
+      backgroundColor: AppColors.background,
       builder: (_) => const FilterSheet(),
     );
 
@@ -290,17 +292,17 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF121B2E), Color(0xFF172238)],
+            colors: [AppColors.heroStart, AppColors.headerEnd],
           ),
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0x334F8CFF)),
+          border: Border.all(color: AppColors.borderAccent),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Row(
               children: [
-                Icon(Icons.explore, color: Color(0xFF3B82F6), size: 20),
+                Icon(Icons.explore, color: AppColors.accent, size: 20),
                 SizedBox(width: 10),
                 Text(
                   "Dünyayı Keşfet",
@@ -315,7 +317,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 12),
             const Text(
               "Ülkeler, bayraklar ve diller — güncel verilerle",
-              style: TextStyle(color: Color(0xFF9DB2CE), fontSize: 13),
+              style: TextStyle(color: AppColors.textBody, fontSize: 13),
             ),
             const SizedBox(height: 22),
             Row(
@@ -356,14 +358,14 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         height: 60,
         decoration: BoxDecoration(
-          color: const Color(0xFF162440),
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 14),
-              child: Icon(Icons.search, color: Color(0xFF7A9CC4)),
+              child: Icon(Icons.search, color: AppColors.textMuted),
             ),
             Expanded(
               child: TextField(
@@ -374,21 +376,21 @@ class _HomePageState extends State<HomePage> {
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   hintText: _isActive ? "" : _currentHint,
-                  hintStyle: const TextStyle(color: Color(0xFF7A9CC4)),
+                  hintStyle: const TextStyle(color: AppColors.textMuted),
                   border: InputBorder.none,
                 ),
               ),
             ),
             if (_searchCtrl.text.isNotEmpty)
               IconButton(
-                icon: const Icon(Icons.close, color: Color(0xFF7A9CC4), size: 18),
+                icon: const Icon(Icons.close, color: AppColors.textMuted, size: 18),
                 onPressed: () => _searchCtrl.clear(),
               ),
             SizedBox(
               width: 44,
               height: 44,
               child: Material(
-                color: const Color(0xFF3B82F6),
+                color: AppColors.accent,
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(10),
@@ -418,8 +420,8 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color.fromARGB(255, 75, 131, 168),
-              Color.fromARGB(255, 175, 184, 190),
+              AppColors.travelCardStart,
+              AppColors.travelCardEnd,
             ],
           ),
           borderRadius: BorderRadius.circular(16),
@@ -452,7 +454,7 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF073559),
+                  color: AppColors.accentDeep,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Text(
@@ -483,10 +485,10 @@ class _HomePageState extends State<HomePage> {
               children: [
                 if (_visaFilter != null)
                   _filterChip(
-                      Labels.visa(_visaFilter), visaColor(_visaFilter!)),
+                      Labels.visa(_visaFilter), AppColors.visa(_visaFilter)),
                 if (_entryFilter != null)
                   _filterChip(
-                      Labels.entry(_entryFilter), const Color(0xFF4DA3FF)),
+                      Labels.entry(_entryFilter), AppColors.accentLight),
               ],
             ),
           ),
@@ -494,7 +496,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: _clearFilters,
             child: const Text(
               "Temizle",
-              style: TextStyle(color: Color(0xFF8AA4C2)),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -517,126 +519,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  static Color visaColor(String? v) {
-    switch (v) {
-      case "Visa Free":
-        return const Color(0xFF2ED573);
-      case "E-Visa":
-        return const Color(0xFF4DA3FF);
-      case "Visa On Arrival":
-        return const Color(0xFFFFA502);
-      case "Visa Required":
-        return const Color(0xFFFF4757);
-      default:
-        return const Color(0xFF7A9CC4);
-    }
-  }
-
-  // ---------------- VERİ EKSİK UYARISI ----------------
-  /// Demo anahtarı örnek veri döndürüyorsa ya da API'nin bildirdiği toplam
-  /// sayıdan az ülke geldiyse kullanıcıya sebebini söyle.
-  /// "· 3 saat önce" gibi bir ek. Tarih bilinmiyorsa boş string.
-  String _cacheAgeText() {
-    final date = CountryService.dataDate;
-    if (date == null) return "";
-
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 60) return " · ${diff.inMinutes} dk önce";
-    if (diff.inHours < 24) return " · ${diff.inHours} saat önce";
-    return " · ${diff.inDays} gün önce";
-  }
-
-  Widget _buildDataNotice() {
-    if (isLoading || errorMessage != null || allCountries.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final total = CountryService.reportedTotal;
-    final incomplete = total != null && allCountries.length < total;
-    final fromCache = CountryService.loadedFromCache;
-
-    if (!CountryService.demoResponseDetected && !incomplete && !fromCache) {
-      return const SizedBox.shrink();
-    }
-
-    // Çevrimdışı önbellekten açıldıysa sadece bilgi ver, uyarı görünümü verme.
-    if (fromCache && !CountryService.demoResponseDetected && !incomplete) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-        child: Row(
-          children: [
-            const Icon(Icons.offline_bolt_outlined,
-                color: Color(0xFF7A9CC4), size: 14),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                "Kayıtlı veriden açıldı${_cacheAgeText()} · arka planda güncelleniyor",
-                style: const TextStyle(
-                  color: Color(0xFF7A9CC4),
-                  fontSize: 11,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final countText = total != null
-        ? "${allCountries.length} / $total ülke yüklendi"
-        : "${allCountries.length} ülke yüklendi";
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0x1AFFA502),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0x66FFA502)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.info_outline,
-                color: Color(0xFFFFA502), size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    countText,
-                    style: const TextStyle(
-                      color: Color(0xFFFFA502),
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    CountryService.isUsingDemoKey
-                        ? "Demo anahtarı sadece örnek veri döndürüyor. "
-                            "Tam liste için restcountries.com'dan ücretsiz "
-                            "anahtar al ve uygulamayı şöyle başlat:\n"
-                            "flutter run --dart-define=RC_API_KEY=anahtarin"
-                        : "API tam listeyi döndürmedi. Yenilemek için "
-                            "uygulamayı yeniden başlatabilirsin.",
-                    style: const TextStyle(
-                      color: Color(0xFFD6A45A),
-                      fontSize: 11,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ---------------- ÜLKE KARTI ----------------
   Widget _countryCard(Country country) {
     final name = country.name;
@@ -651,9 +533,9 @@ class _HomePageState extends State<HomePage> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF122038),
+          color: AppColors.surfaceRaised,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF223B5E)),
+          border: Border.all(color: AppColors.border),
         ),
         child: Row(
           children: [
@@ -668,11 +550,11 @@ class _HomePageState extends State<HomePage> {
                 errorBuilder: (_, __, ___) => Container(
                   width: 48,
                   height: 34,
-                  color: const Color(0xFF223B5E),
+                  color: AppColors.border,
                   child: const Icon(
                     Icons.flag,
                     size: 16,
-                    color: Color(0xFF7A9CC4),
+                    color: AppColors.textMuted,
                   ),
                 ),
               ),
@@ -694,7 +576,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     capital,
                     style: const TextStyle(
-                      color: Color(0xFF8AA4C2),
+                      color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -705,19 +587,19 @@ class _HomePageState extends State<HomePage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: visaColor(visa).withValues(alpha: 0.15),
+                  color: AppColors.visa(visa).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: visaColor(visa)),
+                  border: Border.all(color: AppColors.visa(visa)),
                 ),
                 child: Text(
                   Labels.visa(visa),
-                  style: TextStyle(color: visaColor(visa), fontSize: 10),
+                  style: TextStyle(color: AppColors.visa(visa), fontSize: 10),
                 ),
               ),
             const SizedBox(width: 4),
             const Icon(
               Icons.chevron_right,
-              color: Color(0xFF7A9CC4),
+              color: AppColors.textMuted,
               size: 18,
             ),
           ],
@@ -730,7 +612,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildResults() {
     if (isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+        child: CircularProgressIndicator(color: AppColors.accent),
       );
     }
 
@@ -740,7 +622,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const Icon(Icons.cloud_off, color: Color(0xFF7A9CC4), size: 40),
+            const Icon(Icons.cloud_off, color: AppColors.textMuted, size: 40),
             const SizedBox(height: 12),
             const Text(
               "Veriler alınamadı",
@@ -762,9 +644,9 @@ class _HomePageState extends State<HomePage> {
                 margin: const EdgeInsets.only(top: 20),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0x1AFFA502),
+                  color: AppColors.warningSoft,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFFFA502)),
+                  border: Border.all(color: AppColors.warning),
                 ),
                 child: const Text(
                   "Şu an demo API anahtarı kullanılıyor.\n"
@@ -772,7 +654,7 @@ class _HomePageState extends State<HomePage> {
                   "şöyle başlat:\n\n"
                   "flutter run --dart-define=RC_API_KEY=anahtarin",
                   style: TextStyle(
-                    color: Color(0xFFFFA502),
+                    color: AppColors.warning,
                     fontSize: 12,
                     height: 1.5,
                   ),
@@ -784,14 +666,14 @@ class _HomePageState extends State<HomePage> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF122038),
+                color: AppColors.surfaceRaised,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFF223B5E)),
+                border: Border.all(color: AppColors.border),
               ),
               child: SelectableText(
                 errorMessage!,
                 style: const TextStyle(
-                  color: Color(0xFF8AA4C2),
+                  color: AppColors.textSecondary,
                   fontSize: 11,
                   height: 1.4,
                 ),
@@ -809,7 +691,7 @@ class _HomePageState extends State<HomePage> {
           child: Text(
             VisaEngine.emptyMessage(_visaFilter, _entryFilter),
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF8AA4C2)),
+            style: const TextStyle(color: AppColors.textSecondary),
           ),
         ),
       );
@@ -825,7 +707,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A1628),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         bottom: false,
         child: Column(

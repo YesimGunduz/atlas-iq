@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 
 class HomeHeader extends StatelessWidget {
   /// Sağ üstteki "Oyna" düğmesine basıldığında çalışır.
@@ -15,8 +16,8 @@ class HomeHeader extends StatelessWidget {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFF0B1220),
-            Color(0xFF172238),
+            AppColors.headerStart,
+            AppColors.headerEnd,
           ],
         ),
       ),
@@ -29,7 +30,7 @@ class HomeHeader extends StatelessWidget {
                 Text(
                   "HOŞ GELDİN",
                   style: TextStyle(
-                    color: Color(0xFF3B82F6),
+                    color: AppColors.accent,
                     fontSize: 12,
                   ),
                 ),
@@ -93,12 +94,12 @@ class _PlayButtonState extends State<_PlayButton>
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+                colors: [AppColors.accent, AppColors.accentDark],
               ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF3B82F6).withValues(alpha: 0.35),
+                  color: AppColors.accent.withValues(alpha: 0.35),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),

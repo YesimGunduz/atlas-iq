@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:globeinfo/data/saved_data.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/views/pages/home_page.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -62,8 +63,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     const shadows = [
-      Shadow(blurRadius: 20, color: Color.fromARGB(255, 7, 33, 79)),
-      Shadow(blurRadius: 40, color: Color.fromARGB(110, 0, 0, 0)),
+      Shadow(blurRadius: 20, color: AppColors.shadowGlow),
+      Shadow(blurRadius: 40, color: AppColors.shadowSoft),
     ];
 
     return Scaffold(
@@ -75,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen> {
             "assets/images/splashatlas.png",
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) =>
-                Container(color: const Color(0xFF0A1628)),
+                Container(color: AppColors.background),
           ),
 
           // OVERLAY
@@ -107,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     "Ülkeleri, bayrakları ve güncel bilgileri tek yerde keşfet",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Color.fromARGB(255, 249, 249, 249),
+                      color: AppColors.splashText,
                       fontSize: 16,
                       shadows: shadows,
                     ),

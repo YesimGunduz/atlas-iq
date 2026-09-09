@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,9 +33,9 @@ extension _LevelInfo on _Level {
       };
 
   Color get color => switch (this) {
-        _Level.easy => const Color(0xFF2ED573),
-        _Level.medium => const Color(0xFFFFA502),
-        _Level.hard => const Color(0xFFFF4757),
+        _Level.easy => AppColors.success,
+        _Level.medium => AppColors.warning,
+        _Level.hard => AppColors.danger,
       };
 
   int get points => switch (this) {
@@ -359,19 +360,19 @@ class _FlagGamePageState extends State<FlagGamePage> {
   // ŞIK GÖRÜNÜMÜ
   // ===============================================================
   Color _optionColor(String name) {
-    if (_selected == null) return const Color(0xFF162440);
+    if (_selected == null) return AppColors.surface;
     final correctName = _correct!.name;
-    if (name == correctName) return const Color(0xFF1B5E3F);
-    if (name == _selected) return const Color(0xFF6B2130);
-    return const Color(0xFF162440);
+    if (name == correctName) return AppColors.answerRight;
+    if (name == _selected) return AppColors.answerWrong;
+    return AppColors.surface;
   }
 
   Color _optionBorder(String name) {
-    if (_selected == null) return const Color(0xFF223B5E);
+    if (_selected == null) return AppColors.border;
     final correctName = _correct!.name;
-    if (name == correctName) return const Color(0xFF2ED573);
-    if (name == _selected) return const Color(0xFFFF4757);
-    return const Color(0xFF223B5E);
+    if (name == correctName) return AppColors.success;
+    if (name == _selected) return AppColors.danger;
+    return AppColors.border;
   }
 
   IconData? _optionIcon(String name) {
@@ -386,10 +387,10 @@ class _FlagGamePageState extends State<FlagGamePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A1628),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0B1220),
-        iconTheme: const IconThemeData(color: Color(0xFF8FB3DA)),
+        backgroundColor: AppColors.headerStart,
+        iconTheme: const IconThemeData(color: AppColors.textAppBar),
         title: const Text(
           "Bayrak Oyunu",
           style: TextStyle(color: Colors.white, fontSize: 18),
@@ -401,12 +402,12 @@ class _FlagGamePageState extends State<FlagGamePage> {
               child: Row(
                 children: [
                   const Icon(Icons.emoji_events,
-                      color: Color(0xFFFFA502), size: 16),
+                      color: AppColors.warning, size: 16),
                   const SizedBox(width: 4),
                   Text(
                     "$_best",
                     style: const TextStyle(
-                      color: Color(0xFFFFA502),
+                      color: AppColors.warning,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -423,7 +424,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
   Widget _buildBody() {
     if (_loading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+        child: CircularProgressIndicator(color: AppColors.accent),
       );
     }
 
@@ -432,7 +433,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
     if (_correct == null) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+        child: CircularProgressIndicator(color: AppColors.accent),
       );
     }
 
@@ -447,7 +448,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off, color: Color(0xFF7A9CC4), size: 40),
+            const Icon(Icons.cloud_off, color: AppColors.textMuted, size: 40),
             const SizedBox(height: 12),
             const Text(
               "Oyun başlatılamadı",
@@ -457,16 +458,16 @@ class _FlagGamePageState extends State<FlagGamePage> {
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF8AA4C2), fontSize: 13),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
             if (CountryService.isUsingDemoKey) ...[
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0x1AFFA502),
+                  color: AppColors.warningSoft,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFFA502)),
+                  border: Border.all(color: AppColors.warning),
                 ),
                 child: const Text(
                   "Demo API anahtarı yalnızca 1 ülke (Kanada) döndürüyor.\n"
@@ -475,7 +476,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                   "sonra uygulamayı şöyle başlat:\n\n"
                   "flutter run --dart-define=RC_API_KEY=anahtarin",
                   style: TextStyle(
-                    color: Color(0xFFFFA502),
+                    color: AppColors.warning,
                     fontSize: 12,
                     height: 1.5,
                   ),
@@ -510,7 +511,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                     Text(
                       "Soru ${_index + 1} / $questionCount",
                       style: const TextStyle(
-                        color: Color(0xFF8AA4C2),
+                        color: AppColors.textSecondary,
                         fontSize: 13,
                       ),
                     ),
@@ -519,12 +520,12 @@ class _FlagGamePageState extends State<FlagGamePage> {
                     const Spacer(),
                     if (_streak >= 2) ...[
                       const Icon(Icons.local_fire_department,
-                          color: Color(0xFFFFA502), size: 16),
+                          color: AppColors.warning, size: 16),
                       const SizedBox(width: 3),
                       Text(
                         "$_streak",
                         style: const TextStyle(
-                          color: Color(0xFFFFA502),
+                          color: AppColors.warning,
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
@@ -551,7 +552,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                     child: LinearProgressIndicator(
                       value: value,
                       minHeight: 6,
-                      backgroundColor: const Color(0xFF162440),
+                      backgroundColor: AppColors.surface,
                       valueColor: AlwaysStoppedAnimation(_level.color),
                     ),
                   ),
@@ -575,12 +576,12 @@ class _FlagGamePageState extends State<FlagGamePage> {
               key: ValueKey(flag),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF122038),
+                color: AppColors.surfaceRaised,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFF223B5E)),
+                border: Border.all(color: AppColors.border),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x66000000),
+                    color: AppColors.shadow,
                     blurRadius: 20,
                     offset: Offset(0, 8),
                   ),
@@ -601,7 +602,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                           width: 200,
                           child: Center(
                             child: CircularProgressIndicator(
-                              color: Color(0xFF3B82F6),
+                              color: AppColors.accent,
                               strokeWidth: 2,
                             ),
                           ),
@@ -610,7 +611,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                     height: 140,
                     width: 200,
                     child: Icon(Icons.flag,
-                        size: 60, color: Color(0xFF7A9CC4)),
+                        size: 60, color: AppColors.textMuted),
                   ),
                 ),
               ),
@@ -621,7 +622,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
           const Text(
             "Bu bayrak hangi ülkeye ait?",
-            style: TextStyle(color: Color(0xFF8AA4C2), fontSize: 14),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
 
           const Spacer(),
@@ -691,8 +692,8 @@ class _FlagGamePageState extends State<FlagGamePage> {
                   Icon(
                     icon,
                     color: icon == Icons.check_circle
-                        ? const Color(0xFF2ED573)
-                        : const Color(0xFFFF4757),
+                        ? AppColors.success
+                        : AppColors.danger,
                     size: 20,
                   ),
               ],
@@ -732,8 +733,8 @@ class _FlagGamePageState extends State<FlagGamePage> {
                 _isNewRecord ? Icons.emoji_events : Icons.flag_circle,
                 size: 80,
                 color: _isNewRecord
-                    ? const Color(0xFFFFA502)
-                    : const Color(0xFF3B82F6),
+                    ? AppColors.warning
+                    : AppColors.accent,
               ),
             ),
 
@@ -752,7 +753,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
             Text(
               "$_correctCount / $questionCount doğru",
-              style: const TextStyle(color: Color(0xFF8AA4C2), fontSize: 15),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
             ),
 
             const SizedBox(height: 12),
@@ -760,7 +761,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF8AA4C2), fontSize: 14),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
 
             if (_isNewRecord) ...[
@@ -769,14 +770,14 @@ class _FlagGamePageState extends State<FlagGamePage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0x1AFFA502),
+                  color: AppColors.warningSoft,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFFFA502)),
+                  border: Border.all(color: AppColors.warning),
                 ),
                 child: const Text(
                   "Yeni rekor!",
                   style: TextStyle(
-                    color: Color(0xFFFFA502),
+                    color: AppColors.warning,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -800,7 +801,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3B82F6),
+                  backgroundColor: AppColors.accent,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -821,7 +822,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   "Ana sayfaya dön",
-                  style: TextStyle(color: Color(0xFF8AA4C2)),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ),
             ),
@@ -845,7 +846,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(color: Color(0xFF8AA4C2), fontSize: 12),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
       ],
     );

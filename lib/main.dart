@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/views/pages/splash_page.dart';
 
 void main() {
@@ -16,9 +17,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0A1628),
+        scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3B82F6),
+          seedColor: AppColors.accent,
           brightness: Brightness.dark,
         ),
       ),

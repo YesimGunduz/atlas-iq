@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:globeinfo/data/labels.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 
 class FilterSheet extends StatefulWidget {
   const FilterSheet({super.key});
@@ -12,7 +13,7 @@ class _FilterSheetState extends State<FilterSheet> {
   String? visaType;
   String? entryType;
 
-  final Color accent = const Color(0xFF4DA3FF);
+  final Color accent = AppColors.accentLight;
 
   final List<String> visaOptions = [
     "Visa Free",
@@ -25,21 +26,6 @@ class _FilterSheetState extends State<FilterSheet> {
     "ID Only",
     "Passport Required",
   ];
-
-  Color visaColor(String v) {
-    switch (v) {
-      case "Visa Free":
-        return const Color(0xFF2ED573);
-      case "E-Visa":
-        return const Color(0xFF4DA3FF);
-      case "Visa On Arrival":
-        return const Color(0xFFFFA502);
-      case "Visa Required":
-        return const Color(0xFFFF4757);
-      default:
-        return Colors.white;
-    }
-  }
 
   Widget chip(String text, bool selected, VoidCallback onTap, {Color? color}) {
     final c = color ?? Colors.white;
@@ -84,7 +70,7 @@ class _FilterSheetState extends State<FilterSheet> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF0B0B0B),
+        color: AppColors.sheet,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.only(
@@ -143,7 +129,7 @@ class _FilterSheetState extends State<FilterSheet> {
                     visaType = visaType == v ? null : v;
                   });
                 },
-                color: visaColor(v),
+                color: AppColors.visa(v),
               );
             }).toList(),
           ),

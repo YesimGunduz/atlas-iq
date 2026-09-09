@@ -4,6 +4,7 @@ import 'package:globeinfo/data/labels.dart';
 import 'package:globeinfo/data/saved_data.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/views/widgets/footer.dart';
 
 class CountryDetailPage extends StatefulWidget {
@@ -150,7 +151,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       ..showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 1),
-          backgroundColor: const Color(0xFF162A45),
+          backgroundColor: AppColors.surfaceCard,
           content: Text(
             willSave
                 ? "${data.name} kaydedildi"
@@ -162,33 +163,148 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
   }
 
   // ---------------------------------------------------------------
-  Widget infoCard(String title, String value, {Color? valueColor}) {
+  /// Bilgi satırlarını TEK bir kutuda, ince ayraçlarla gösterir.
+  ///
+  /// Önceden her satır ayrı bir kart, ayrı kenarlık, ayrı gölgeydi; on tane
+  /// eşit ağırlıkta kutu yan yana durunca hiçbiri öne çıkmıyordu. Kenarlığı
+  /// ve zemini artık gruba bir kez veriyoruz.
+  Widget _infoGroup(List<_InfoRow> rows) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF162A45),
+        color: AppColors.surfaceCard,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF223B5E)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          Text(
-            title,
-            style: const TextStyle(color: Color(0xFF7FA6D6), fontSize: 13),
-          ),
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                color: valueColor ?? Colors.white,
-                fontWeight: FontWeight.w600,
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: 16,
+                endIndent: 16,
+                color: AppColors.border.withValues(alpha: 0.5),
+              ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    rows[i].title,
+                    style: const TextStyle(
+                      color: AppColors.textLabel,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      rows[i].value,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: rows[i].color ?? AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Sayfanın asıl cevabı: bu ülkeye vizesiz gidilir mi?
+  /// En üstte, büyük ve duruma göre renkli.
+  Widget _visaHighlight(String? visa, String? entry, String? note) {
+    final known = visa != null;
+    final color = known ? AppColors.visa(visa) : AppColors.textMuted;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.65), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                known ? Icons.badge_outlined : Icons.help_outline,
+                color: color,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "VİZE DURUMU",
+                style: TextStyle(
+                  color: color.withValues(alpha: 0.9),
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 10),
+          Text(
+            known ? Labels.visa(visa) : "Kayıt yok",
+            style: TextStyle(
+              color: color,
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (known && entry != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              Labels.entry(entry),
+              style: const TextStyle(
+                color: AppColors.textBody,
+                fontSize: 14,
+              ),
+            ),
+          ],
+          if (note != null) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.sticky_note_2_outlined,
+                    color: AppColors.textLabel, size: 15),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    note,
+                    style: const TextStyle(
+                      color: AppColors.textBody,
+                      fontSize: 12.5,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (!known) ...[
+            const SizedBox(height: 6),
+            const Text(
+              "Bu ülke vize veri dosyasında yok.",
+              style: TextStyle(color: AppColors.textLabel, fontSize: 13),
+            ),
+          ],
         ],
       ),
     );
@@ -214,9 +330,9 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F1C33),
+            color: AppColors.surfaceSunken,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFF223B5E)),
+            border: Border.all(color: AppColors.border),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -242,7 +358,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Color(0xFF7FA6D6), fontSize: 12),
+            style: const TextStyle(color: AppColors.textLabel, fontSize: 12),
           ),
           const SizedBox(height: 6),
           Text(
@@ -258,29 +374,14 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
     );
   }
 
-  static Color _visaColor(String? v) {
-    switch (v) {
-      case "Visa Free":
-        return const Color(0xFF2ED573);
-      case "E-Visa":
-        return const Color(0xFF4DA3FF);
-      case "Visa On Arrival":
-        return const Color(0xFFFFA502);
-      case "Visa Required":
-        return const Color(0xFFFF4757);
-      default:
-        return Colors.white;
-    }
-  }
-
   // ---------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF162440),
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF162440),
-        iconTheme: const IconThemeData(color: Color(0xFF8FB3DA)),
+        backgroundColor: AppColors.surface,
+        iconTheme: const IconThemeData(color: AppColors.textAppBar),
         title: Text(_name, style: const TextStyle(color: Colors.white)),
         actions: [
           if (country != null)
@@ -302,7 +403,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
   Widget _buildBody() {
     if (isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+        child: CircularProgressIndicator(color: AppColors.accent),
       );
     }
 
@@ -315,7 +416,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.search_off, color: Color(0xFF7FA6D6), size: 40),
+              const Icon(Icons.search_off, color: AppColors.textLabel, size: 40),
               const SizedBox(height: 12),
               Text(
                 errorMessage ??
@@ -355,7 +456,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               errorBuilder: (_, __, ___) => const Icon(
                 Icons.flag,
                 size: 60,
-                color: Color(0xFF7FA6D6),
+                color: AppColors.textLabel,
               ),
             ),
           ),
@@ -371,61 +472,24 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           ),
           const SizedBox(height: 20),
 
+          // 1) Sayfanın asıl sorusu en üstte
+          _visaHighlight(visa, entry, note),
+
+          // 2) Canlı saat - ikinci en çok bakılan şey
           dualLiveClock(),
 
-          infoCard("Saat farkı", timeDifference),
-          infoCard("Başkent", c.capital),
-          infoCard("Bölge", Labels.region(c.region)),
-          infoCard("Nüfus", c.populationText),
-          infoCard("Diller", c.languagesText),
-          infoCard("Para birimi", c.currencyText),
-          infoCard("TL karşılığı", _tryRateText,
-              valueColor: Colors.greenAccent),
-          infoCard("Saat dilimi", c.timezonesText),
-
-          if (visa != null)
-            infoCard("Vize", Labels.visa(visa),
-                valueColor: _visaColor(visa)),
-          if (entry != null) infoCard("Giriş", Labels.entry(entry)),
-
-          if (note != null)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F1C33),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF223B5E)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.sticky_note_2_outlined,
-                      color: Color(0xFF7FA6D6), size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      note,
-                      style: const TextStyle(
-                        color: Color(0xFF9DB2CE),
-                        fontSize: 12,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          if (visa == null)
-            const Padding(
-              padding: EdgeInsets.only(top: 4, bottom: 12),
-              child: Text(
-                "Bu ülke için henüz vize kaydı yok",
-                style: TextStyle(color: Color(0xFF7FA6D6), fontSize: 12),
-              ),
-            ),
+          // 3) Geri kalan bilgiler tek grupta, daha sakin
+          _infoGroup([
+            _InfoRow("Saat farkı", timeDifference),
+            _InfoRow("Başkent", c.capital),
+            _InfoRow("Bölge", Labels.region(c.region)),
+            _InfoRow("Nüfus", c.populationText),
+            _InfoRow("Diller", c.languagesText),
+            _InfoRow("Para birimi", c.currencyText),
+            _InfoRow("TL karşılığı", _tryRateText,
+                color: Colors.greenAccent),
+            _InfoRow("Saat dilimi", c.timezonesText),
+          ]),
 
           if (visa != null && VisaDatabase.disclaimer.isNotEmpty)
             Padding(
@@ -434,7 +498,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
                 "${VisaDatabase.passport} için. ${VisaDatabase.disclaimer}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: Color(0xFF5F7DA3),
+                  color: AppColors.textDim,
                   fontSize: 11,
                   height: 1.4,
                 ),
@@ -444,4 +508,13 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       ),
     );
   }
+}
+
+/// Detay sayfasındaki tek bir bilgi satırı.
+class _InfoRow {
+  final String title;
+  final String value;
+  final Color? color;
+
+  const _InfoRow(this.title, this.value, {this.color});
 }

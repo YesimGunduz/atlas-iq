@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/views/pages/saved_pages.dart';
 
 /// Alt menü.
@@ -41,7 +42,7 @@ class HomeFooter extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0x1A3B82F6) : Colors.transparent,
+          color: isActive ? AppColors.accentSoft : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -50,8 +51,8 @@ class HomeFooter extends StatelessWidget {
             Icon(
               icon,
               color: isActive
-                  ? const Color(0xFF3B82F6)
-                  : const Color(0xFF7A9CC4),
+                  ? AppColors.accent
+                  : AppColors.textMuted,
               size: 22,
             ),
             const SizedBox(height: 4),
@@ -60,8 +61,8 @@ class HomeFooter extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 color: isActive
-                    ? const Color(0xFF3B82F6)
-                    : const Color(0xFF7A9CC4),
+                    ? AppColors.accent
+                    : AppColors.textMuted,
               ),
             ),
           ],
@@ -74,8 +75,8 @@ class HomeFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF0B1424),
-        border: Border(top: BorderSide(color: Color(0x1A609FFA))),
+        color: AppColors.footer,
+        border: Border(top: BorderSide(color: AppColors.borderSoft)),
       ),
       child: SafeArea(
         top: false,

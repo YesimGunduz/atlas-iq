@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/data/saved_data.dart';
 
 import 'package:globeinfo/views/widgets/footer.dart';
@@ -16,17 +17,17 @@ class _SavedPageState extends State<SavedPage> {
     final savedCountries = SavedData.savedCountries.reversed.toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF162440),
+      backgroundColor: AppColors.surface,
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF162440),
+        backgroundColor: AppColors.surface,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Color(0xFF8FB3DA)),
+        iconTheme: const IconThemeData(color: AppColors.textAppBar),
         title: const Text(
           "Kaydedilenler",
           style: TextStyle(
-            color: Color(0xFF8FB3DA),
+            color: AppColors.textAppBar,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -41,7 +42,7 @@ class _SavedPageState extends State<SavedPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.star_border,
-                        color: Color(0xFF7FA6D6), size: 48),
+                        color: AppColors.textLabel, size: 48),
                     const SizedBox(height: 16),
                     const Text(
                       "Henüz kayıtlı ülke yok",
@@ -57,7 +58,7 @@ class _SavedPageState extends State<SavedPage> {
                       "dokunarak buraya ekleyebilirsin.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color(0xFF8AA4C2),
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                         height: 1.5,
                       ),
@@ -125,15 +126,15 @@ class _SavedPageState extends State<SavedPage> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color.fromARGB(255, 168, 194, 213),
-                                    Color(0xFF162440),
+                                    AppColors.savedCardStart,
+                                    AppColors.surface,
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: const Color(0xFF223B5E),
+                                  color: AppColors.border,
                                 ),
                               ),
 
@@ -150,11 +151,11 @@ class _SavedPageState extends State<SavedPage> {
                                       errorBuilder: (_, __, ___) => Container(
                                         width: 55,
                                         height: 38,
-                                        color: const Color(0xFF223B5E),
+                                        color: AppColors.border,
                                         child: const Icon(
                                           Icons.flag,
                                           size: 16,
-                                          color: Color(0xFF7A9CC4),
+                                          color: AppColors.textMuted,
                                         ),
                                       ),
                                     ),
@@ -182,12 +183,7 @@ class _SavedPageState extends State<SavedPage> {
                                           TextSpan(
                                             text: "${item.capital}, ",
                                             style: const TextStyle(
-                                              color: Color.fromARGB(
-                                                255,
-                                                41,
-                                                54,
-                                                68,
-                                              ),
+                                              color: AppColors.savedCardText,
                                               fontSize: 13,
                                             ),
                                             children: [
@@ -218,7 +214,7 @@ class _SavedPageState extends State<SavedPage> {
                   Text(
                     "${savedCountries.length} ülke kayıtlı",
                     style: const TextStyle(
-                      color: Color(0xFF8FB3DA),
+                      color: AppColors.textAppBar,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),

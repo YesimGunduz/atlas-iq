@@ -113,14 +113,34 @@ class CountryNamesTr {
     "etiyopya": "Ethiopia",
   };
 
+  /// İngilizce ad -> o ada karşılık gelen Türkçe adlar.
+  ///
+  /// Önceden her ülke için 100 girişlik haritanın tamamı taranıyordu:
+  /// 249 ülke x 100 giriş = tuş başına ~25.000 karşılaştırma. Haritayı bir
+  /// kez ters çevirip saklıyoruz, arama tek sözlük bakışına iniyor.
+  static Map<String, List<String>>? _byEnglish;
+
+  static Map<String, List<String>> get _reverseIndex {
+    final cached = _byEnglish;
+    if (cached != null) return cached;
+
+    final map = <String, List<String>>{};
+    trToEn.forEach((turkish, english) {
+      map.putIfAbsent(english.toLowerCase(), () => []).add(turkish);
+    });
+
+    _byEnglish = map;
+    return map;
+  }
+
   /// Yazılan metnin İngilizce karşılığı varsa onu, yoksa metnin kendisini döner.
   static String resolve(String input) {
     final key = input.trim().toLowerCase();
     return trToEn[key] ?? input.trim();
   }
 
-  /// [query] bu ülkeyle eşleşiyor mu? Hem İngilizce adı hem Türkçe karşılığı
-  /// üzerinden bakar.
+  /// [query] bu ülkeyle eşleşiyor mu? Hem İngilizce adı hem Türkçe
+  /// karşılıkları üzerinden bakar.
   static bool matches(String englishName, String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return true;
@@ -128,12 +148,11 @@ class CountryNamesTr {
     final name = englishName.toLowerCase();
     if (name.contains(q)) return true;
 
-    // "alm" -> "almanya" -> "Germany"
-    for (final entry in trToEn.entries) {
-      if (entry.key.startsWith(q) &&
-          entry.value.toLowerCase() == name) {
-        return true;
-      }
+    final turkishNames = _reverseIndex[name];
+    if (turkishNames == null) return false;
+
+    for (final turkish in turkishNames) {
+      if (turkish.contains(q)) return true;
     }
     return false;
   }
