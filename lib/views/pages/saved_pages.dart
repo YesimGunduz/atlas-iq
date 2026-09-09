@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'widgets/saved_data.dart';
-import 'widgets/footer.dart';
-import 'countryservices.dart';
-import 'detailspage.dart';
+import 'package:globeinfo/data/saved_data.dart';
 
+import 'package:globeinfo/views/widgets/footer.dart';
+import 'details_page.dart';
 class SavedPage extends StatefulWidget {
   const SavedPage({super.key});
 
@@ -55,12 +54,9 @@ class _SavedPageState extends State<SavedPage> {
                           key: Key(item.name),
                           direction: DismissDirection.endToStart,
 
-                          onDismissed: (_) {
-                            setState(() {
-                              SavedData.savedCountries.removeWhere(
-                                (e) => e.name == item.name,
-                              );
-                            });
+                          onDismissed: (_) async {
+                            await SavedData.remove(item.name);
+                            if (mounted) setState(() {});
                           },
 
                           background: Container(
@@ -79,14 +75,15 @@ class _SavedPageState extends State<SavedPage> {
 
                           // ⭐ TIKLANABİLİR KART BURASI
                           child: InkWell(
-                            onTap: () {
-                              Navigator.push(
+                            onTap: () async {
+                              await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
                                       CountryDetailPage(query: item.name),
                                 ),
                               );
+                              if (mounted) setState(() {});
                             },
 
                             child: Container(
@@ -116,6 +113,16 @@ class _SavedPageState extends State<SavedPage> {
                                       width: 55,
                                       height: 38,
                                       fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        width: 55,
+                                        height: 38,
+                                        color: const Color(0xFF223B5E),
+                                        child: const Icon(
+                                          Icons.flag,
+                                          size: 16,
+                                          color: Color(0xFF7A9CC4),
+                                        ),
+                                      ),
                                     ),
                                   ),
 
@@ -186,7 +193,7 @@ class _SavedPageState extends State<SavedPage> {
               ),
             ),
 
-      bottomNavigationBar: const SizedBox(height: 80, child: HomeFooter()),
+      bottomNavigationBar: const HomeFooter(currentIndex: 1),
     );
   }
 }

@@ -1,0 +1,791 @@
+{
+  "passport": "Türkiye Cumhuriyeti pasaportu",
+  "updated": "2026-09",
+  "disclaimer": "Bu bilgiler yalnızca fikir vermek içindir ve değişebilir. Seyahat etmeden önce ilgili ülkenin konsolosluğundan veya T.C. Dışişleri Bakanlığı'ndan doğrulayın.",
+  "countries": [
+    {
+      "country": "Georgia",
+      "visa": "Visa Free",
+      "entry": "ID Only",
+      "note": "Kimlik kartıyla giriş yapılabiliyor"
+    },
+    {
+      "country": "Azerbaijan",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Ukraine",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "Savaş nedeniyle giriş koşulları değişken"
+    },
+    {
+      "country": "Moldova",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Belarus",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Serbia",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Albania",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Bosnia and Herzegovina",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Montenegro",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "North Macedonia",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Kosovo",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Russia",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "60 güne kadar"
+    },
+    {
+      "country": "Kazakhstan",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Kyrgyzstan",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Uzbekistan",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "30 güne kadar"
+    },
+    {
+      "country": "Mongolia",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "30 güne kadar"
+    },
+    {
+      "country": "Japan",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "South Korea",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "K-ETA başvurusu gerekebilir"
+    },
+    {
+      "country": "Malaysia",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Singapore",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "30 güne kadar"
+    },
+    {
+      "country": "Thailand",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "30 güne kadar"
+    },
+    {
+      "country": "Philippines",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "30 güne kadar"
+    },
+    {
+      "country": "Brunei",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Hong Kong",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Macau",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Maldives",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Qatar",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Iran",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Lebanon",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Morocco",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Tunisia",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "South Africa",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Botswana",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Mauritius",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Seychelles",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Brazil",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Argentina",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Chile",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Colombia",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Peru",
+      "visa": "Visa Free",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Ecuador",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Uruguay",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Paraguay",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Venezuela",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Panama",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Costa Rica",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Guatemala",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Honduras",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "El Salvador",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Nicaragua",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Fiji",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Vanuatu",
+      "visa": "Visa Free",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "United Arab Emirates",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "90 güne kadar"
+    },
+    {
+      "country": "Jordan",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Indonesia",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "e-VOA olarak önceden de alınabiliyor"
+    },
+    {
+      "country": "Nepal",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Cambodia",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "e-Vize de mümkün"
+    },
+    {
+      "country": "Laos",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "e-Vize de mümkün"
+    },
+    {
+      "country": "Bolivia",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Bahrain",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "e-Vize de mümkün"
+    },
+    {
+      "country": "Oman",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "e-Vize de mümkün"
+    },
+    {
+      "country": "Tanzania",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "e-Vize de mümkün"
+    },
+    {
+      "country": "Zimbabwe",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Zambia",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Madagascar",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Rwanda",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Comoros",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Timor-Leste",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Egypt",
+      "visa": "Visa On Arrival",
+      "entry": "Passport Required",
+      "note": "Koşullu; yaş ve cinsiyete göre ön onay istenebiliyor"
+    },
+    {
+      "country": "India",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Saudi Arabia",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Vietnam",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Sri Lanka",
+      "visa": "E-Visa",
+      "entry": "Passport Required",
+      "note": "ETA"
+    },
+    {
+      "country": "Kenya",
+      "visa": "E-Visa",
+      "entry": "Passport Required",
+      "note": "ETA sistemi"
+    },
+    {
+      "country": "Ethiopia",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Uganda",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Myanmar",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Pakistan",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Tajikistan",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Djibouti",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Malawi",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Mozambique",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Lesotho",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Gabon",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Benin",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Ivory Coast",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Guinea",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Papua New Guinea",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Bhutan",
+      "visa": "E-Visa",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Germany",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "France",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Italy",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Spain",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Netherlands",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Belgium",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Austria",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Switzerland",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Sweden",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Norway",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Denmark",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Finland",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Iceland",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Portugal",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Greece",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Poland",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Czechia",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Hungary",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Slovakia",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Slovenia",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Croatia",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Estonia",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Latvia",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Lithuania",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Luxembourg",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Malta",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Liechtenstein",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Bulgaria",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Romania",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Schengen vizesi"
+    },
+    {
+      "country": "Cyprus",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "United Kingdom",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Ireland",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "United States",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Canada",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Australia",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "New Zealand",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "China",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Taiwan",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Mexico",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "SAE elektronik izni bazı durumlarda yeterli"
+    },
+    {
+      "country": "Cuba",
+      "visa": "Visa Required",
+      "entry": "Passport Required",
+      "note": "Turist kartı"
+    },
+    {
+      "country": "Israel",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Algeria",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Libya",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Sudan",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Ghana",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Nigeria",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Senegal",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Cameroon",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Angola",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Namibia",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Bangladesh",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Turkmenistan",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Afghanistan",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Syria",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "Yemen",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    },
+    {
+      "country": "North Korea",
+      "visa": "Visa Required",
+      "entry": "Passport Required"
+    }
+  ]
+}

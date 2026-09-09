@@ -50,7 +50,7 @@ class _FilterSheetState extends State<FilterSheet> {
         margin: const EdgeInsets.only(right: 8, bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? c.withOpacity(0.15) : Colors.white10,
+          color: selected ? c.withValues(alpha: 0.15) : Colors.white10,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: selected ? c : Colors.white24),
         ),
@@ -96,7 +96,6 @@ class _FilterSheetState extends State<FilterSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           const Text(
             "Filter Countries",
             style: TextStyle(
@@ -108,8 +107,10 @@ class _FilterSheetState extends State<FilterSheet> {
 
           const SizedBox(height: 20),
 
-          // ENTRY
-          const Text("Entry Type", style: TextStyle(color: Colors.white)),
+          // ENTRY TYPE
+          const Text("Entry Type",
+              style: TextStyle(color: Colors.white)),
+
           Wrap(
             children: entryOptions.map((e) {
               return chip(
@@ -127,8 +128,10 @@ class _FilterSheetState extends State<FilterSheet> {
 
           const SizedBox(height: 12),
 
-          // VISA
-          const Text("Visa Type", style: TextStyle(color: Colors.white)),
+          // VISA TYPE
+          const Text("Visa Type",
+              style: TextStyle(color: Colors.white)),
+
           Wrap(
             children: visaOptions.map((v) {
               return chip(

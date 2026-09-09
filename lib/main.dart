@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'splashpage.dart';
-import 'homepage.dart';
-import 'detailspage.dart';
+import 'package:globeinfo/views/pages/splash_page.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -12,16 +11,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'AtlasIQ',
       debugShowCheckedModeBanner: false,
-      home:  SplashScreen(),
-        routes: {
-        '/detail': (context) {
-          final query =
-              ModalRoute.of(context)!.settings.arguments as String;
-
-          return CountryDetailPage(query: query);
-        },
-        },
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF0A1628),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF3B82F6),
+          brightness: Brightness.dark,
+        ),
+      ),
+      home: const SplashScreen(),
     );
   }
 }

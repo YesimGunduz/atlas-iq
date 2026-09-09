@@ -1,0 +1,133 @@
+import 'package:flutter/material.dart';
+import 'package:globeinfo/data/saved_data.dart';
+import 'package:globeinfo/services/country_services.dart';
+import 'package:globeinfo/services/visa_dataservice.dart';
+import 'package:globeinfo/views/pages/home_page.dart';
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  /// En az bu kadar süre logo ekranda kalsın.
+  static const Duration _minDuration = Duration(milliseconds: 1800);
+
+  @override
+  void initState() {
+    super.initState();
+    _boot();
+  }
+
+  /// Splash ekranı beklerken veriyi gerçekten indiriyoruz.
+  /// Böylece "Loading world data..." yazısı doğru oluyor ve ana sayfa
+  /// açıldığında liste hazır geliyor.
+  Future<void> _boot() async {
+    final started = DateTime.now();
+
+    try {
+      await SavedData.load();
+      await VisaDatabase.load();
+      await CountryService.getAllCountries();
+    } catch (_) {
+      // Hata olursa ana sayfa "Tekrar dene" ekranını gösterecek.
+    }
+
+    final elapsed = DateTime.now().difference(started);
+    final remaining = _minDuration - elapsed;
+    if (remaining > Duration.zero) {
+      await Future.delayed(remaining);
+    }
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomePage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const shadows = [
+      Shadow(blurRadius: 20, color: Color.fromARGB(255, 7, 33, 79)),
+      Shadow(blurRadius: 40, color: Color.fromARGB(110, 0, 0, 0)),
+    ];
+
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // BACKGROUND
+          Image.asset(
+            "assets/images/splashatlas.png",
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) =>
+                Container(color: const Color(0xFF0A1628)),
+          ),
+
+          // OVERLAY
+          Container(color: Colors.black.withValues(alpha: 0.35)),
+
+          // CONTENT
+          SafeArea(
+            child: Column(
+              children: [
+                const Spacer(flex: 4),
+
+                const Text(
+                  "AtlasIQ",
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 2,
+                    shadows: shadows,
+                  ),
+                ),
+
+                const Spacer(flex: 3),
+
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text(
+                    "Explore global countries, flags, and key statistics in real time",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 249, 249, 249),
+                      fontSize: 16,
+                      shadows: shadows,
+                    ),
+                  ),
+                ),
+
+                const Spacer(flex: 2),
+
+                const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  "Loading world data...",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    shadows: shadows,
+                  ),
+                ),
+
+                const Spacer(flex: 1),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
