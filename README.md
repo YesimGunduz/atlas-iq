@@ -1,17 +1,96 @@
-# globeinfo
+# AtlasIQ
 
-A new Flutter project.
+Ülke bilgilerini canlı veriyle gösteren, Türk pasaportu için vize kurallarını
+da içeren bir Flutter uygulaması.
 
-## Getting Started
+- **Ülke listesi ve arama** — 249 ülke, Türkçe adlarla da aranabiliyor
+  ("almanya" yazınca Germany bulunuyor)
+- **Detay sayfası** — başkent, nüfus, diller, para birimi ve **canlı TL kuru**,
+  Türkiye ile saat farkı, iki şehrin saatini yan yana gösteren canlı saat
+- **Vize filtresi** — 145 ülke için vize türü ve giriş belgesi
+- **Kaydedilenler** — yıldızladığın ülkeler cihazda kalıcı
+- **Bayrak oyunu** — kolaydan zora üç kademe; zor seviyede şıklar aynı
+  bölgeden ve benzer bayrak renklerinden seçiliyor
+- **Çevrimdışı çalışır** — liste diske yazılıyor, internet yokken de açılıyor
 
-This project is a starting point for a Flutter application.
+## Kurulum
 
-A few resources to get you started if this is your first Flutter project:
+### 1. API anahtarı al
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Uygulama [REST Countries](https://restcountries.com) **v5** API'sini kullanıyor
+ve bu sürüm anahtar istiyor. Ücretsiz:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. <https://restcountries.com/sign-up> adresinden hesap aç
+2. API anahtarını kopyala
+
+> **Anahtarsız çalışmaz.** Anahtar vermezsen dokümandaki demo anahtarı devreye
+> girer, o da yalnızca **tek bir ülke** (Kanada) döndürür — liste boş görünür ve
+> bayrak oyunu 4 şık üretemediği için başlamaz.
+
+### 2. Çalıştır
+
+```bash
+flutter pub get
+flutter run --dart-define=RC_API_KEY=senin_anahtarin
+```
+
+Anahtar koda gömülü değil; `--dart-define` ile veriliyor, böylece git'e sızmıyor.
+IDE'den çalıştırıyorsan aynı parametreyi çalıştırma yapılandırmana ekle.
+
+> Not: `--dart-define` anahtarı kaynak koddan çıkarır ama derlenmiş uygulamanın
+> içinde metin olarak kalır. Ücretsiz bir anahtar için sorun değil; ücretli bir
+> servise bağlanacaksan anahtarı kendi sunucunda tutman gerekir.
+
+## Proje yapısı
+
+```
+lib/
+├── data/
+│   ├── country.dart          Country modeli; API ve önbellek okuması
+│   ├── country_names_tr.dart Türkçe ülke adı eşlemesi
+│   ├── labels.dart           İngilizce veri değerlerinin Türkçe karşılıkları
+│   └── saved_data.dart       Kaydedilen ülkeler (shared_preferences)
+├── services/
+│   ├── country_services.dart REST Countries v5 istemcisi
+│   ├── country_cache.dart    Çevrimdışı önbellek
+│   ├── visa_dataservice.dart Vize veri dosyasını okur
+│   └── visa_engine.dart      Vize filtreleme
+└── views/
+    ├── pages/                splash, home, details, saved, game
+    └── widgets/              header, footer, filter_sheet
+```
+
+Veri değerleri (`Visa Free`, `Passport Required`, `Europe` …) her yerde
+İngilizce tutuluyor; çeviri yalnızca gösterim katmanında, `labels.dart`
+üzerinden yapılıyor. İkinci bir dil eklemek o dosyaya bir harita eklemek demek.
+
+## Test
+
+```bash
+flutter test
+```
+
+Saf fonksiyonlar test ediliyor: saat dilimi ayrıştırması (yarım saatlik
+farklar dahil), v5 cevabının okunması, önbellek gidiş-dönüşü, vize filtresi.
+
+## Veri kaynakları
+
+| Veri | Kaynak |
+|---|---|
+| Ülke bilgileri | [REST Countries v5](https://restcountries.com) |
+| Döviz kuru | [open.er-api.com](https://open.er-api.com) |
+| Vize kuralları | `assets/data/countries_database.json` (yerel) |
+
+### Vize verisi hakkında uyarı
+
+`countries_database.json` **Türkiye Cumhuriyeti pasaportu** içindir ve
+bilgilendirme amaçlıdır. Vize kuralları sık değişir, bazıları koşulludur.
+**Seyahat etmeden önce ilgili ülkenin konsolosluğundan veya T.C. Dışişleri
+Bakanlığı'ndan doğrulayın.** Dosya, hangi pasaport için olduğunu ve güncelleme
+tarihini kendi içinde taşır.
+
+## Bilinen eksikler
+
+- Uygulama tek temada (koyu); renkler henüz merkezî bir tema dosyasında değil
+- `home_page.dart` ve `game_page.dart` bölünmeyi hak edecek kadar büyük
+- Vize verisi resmî bir kaynaktan doğrulanmadı
