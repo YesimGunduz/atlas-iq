@@ -1,3 +1,4 @@
+import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/data/labels.dart';
 
 /// Vize / giriş tipine göre ülke filtreleme.
@@ -5,22 +6,18 @@ import 'package:globeinfo/data/labels.dart';
 /// Alan adları assets/data/countries_database.json ile birebir aynı:
 /// `visa` ve `entry`.
 class VisaEngine {
-  static List<Map<String, dynamic>> filterCountries(
-    List<Map<String, dynamic>> countries,
+  static List<Country> filterCountries(
+    List<Country> countries,
     String? visaType,
     String? entryType,
   ) {
     if (visaType == null && entryType == null) {
-      return List<Map<String, dynamic>>.from(countries);
+      return List<Country>.from(countries);
     }
 
     return countries.where((c) {
-      final visa = c["visa"];
-      final entry = c["entry"];
-
-      final visaOk = visaType == null || visa == visaType;
-      final entryOk = entryType == null || entry == entryType;
-
+      final visaOk = visaType == null || c.visa == visaType;
+      final entryOk = entryType == null || c.entry == entryType;
       return visaOk && entryOk;
     }).toList();
   }

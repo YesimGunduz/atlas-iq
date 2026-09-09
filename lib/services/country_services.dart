@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/services/country_cache.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,7 +18,8 @@ import 'package:http/http.dart' as http;
 ///
 /// Anahtarı koda gömmüyoruz. Çalıştırırken ver:
 ///   flutter run --dart-define=RC_API_KEY=senin_anahtarin
-/// Anahtar verilmezse dokümandaki demo anahtarı kullanılır (örnek veri döner).
+/// Anahtar verilmezse dokümandaki demo anahtarı kullanılır — o da tek bir
+/// ülke (Kanada) döndürür, yani uygulama gerçek anahtar olmadan dolmaz.
 class CountryService {
   static const String _base = "https://api.restcountries.com/countries/v5";
 
@@ -28,8 +30,16 @@ class CountryService {
 
   static bool get isUsingDemoKey => apiKey == "rc_live_demo";
 
-  /// API cevabında `data._demo` bloğu geldiyse true. Demo anahtarıyla
-  /// çalışırken tam liste yerine örnek veri döndüğünü gösterir.
+  /// v5'ten istediğimiz alanlar (nokta yollu).
+  static const String _responseFields =
+      "names.common,capitals,flag.url_png,flag.colors.dominant,region,"
+      "population,currencies,timezones,languages,codes.alpha_2";
+
+  static const Duration _timeout = Duration(seconds: 20);
+
+  static List<Country>? _cache;
+
+  /// API cevabında `data._demo` bloğu geldiyse true.
   static bool demoResponseDetected = false;
 
   /// API'nin bildirdiği toplam ülke sayısı (data.meta.total).
@@ -41,14 +51,6 @@ class CountryService {
   /// Verinin indirildiği tarih (önbellekten geldiyse o tarih).
   static DateTime? dataDate;
 
-  /// v5'te istediğimiz alanlar (nokta yollu).
-  static const String _responseFields =
-      "names.common,capitals,flag.url_png,flag.colors.dominant,region,population,currencies,timezones,languages,codes.alpha_2";
-
-  static const Duration _timeout = Duration(seconds: 20);
-
-  static List<Map<String, dynamic>>? _cache;
-
   static Map<String, String> get _headers => {
         "Authorization": "Bearer $apiKey",
         "Accept": "application/json",
@@ -57,8 +59,9 @@ class CountryService {
   // ===============================================================
   // İSTEK
   // ===============================================================
-  /// v5'e istek atar, `data.objects` listesini normalize edip döner.
-  static Future<List<Map<String, dynamic>>> _fetchObjects(String path) async {
+  /// v5'e tek bir istek atar ve sayfayı döndürür.
+  /// Hem liste hem tek kayıt çağrıları bunu kullanıyor.
+  static Future<_Page> _request(String path) async {
     final uri = Uri.parse("$_base$path");
 
     final response = await http.get(uri, headers: _headers).timeout(_timeout);
@@ -87,51 +90,10 @@ class CountryService {
 
     if (response.statusCode == 401 || response.statusCode == 403) {
       throw CountryServiceException(
-        "API anahtarı kabul edilmedi (HTTP ${response.statusCode}). "
-        "restcountries.com'dan ücretsiz anahtar alıp uygulamayı şöyle çalıştır:\n"
-        "flutter run --dart-define=RC_API_KEY=anahtarin",
+        "API anahtarı kabul edilmedi (HTTP ${response.statusCode}).\n"
+        "restcountries.com'dan ücretsiz anahtar alıp uygulamayı şöyle "
+        "çalıştır:\nflutter run --dart-define=RC_API_KEY=anahtarin",
       );
-    }
-
-    if (response.statusCode != 200) {
-      throw CountryServiceException(
-        "HTTP ${response.statusCode}: ${_snippet(response.body)}",
-      );
-    }
-
-    if (decoded is! Map || decoded["data"] is! Map) {
-      throw CountryServiceException(
-        "Beklenmeyen cevap yapısı: ${_snippet(response.body)}",
-      );
-    }
-
-    final data = decoded["data"] as Map;
-    final objects = data["objects"];
-
-    if (objects is! List) {
-      throw const CountryServiceException("Cevapta data.objects yok");
-    }
-
-    return objects
-        .whereType<Map>()
-        .map((e) => _normalize(Map<String, dynamic>.from(e)))
-        .where((e) => (e["name"] as String).isNotEmpty)
-        .toList();
-  }
-
-  /// Bir sayfanın `data.meta.more` bilgisini de istediğimiz hâli.
-  static Future<_Page> _fetchPage(String path) async {
-    final uri = Uri.parse("$_base$path");
-    final response = await http.get(uri, headers: _headers).timeout(_timeout);
-
-    final decoded = json.decode(response.body);
-
-    if (decoded is Map && decoded["errors"] is List) {
-      final errors = decoded["errors"] as List;
-      final message = errors.isNotEmpty && errors.first is Map
-          ? (errors.first as Map)["message"]?.toString()
-          : null;
-      throw CountryServiceException(message ?? "API hatası");
     }
 
     if (response.statusCode != 200) {
@@ -141,19 +103,20 @@ class CountryService {
     }
 
     final data = decoded is Map ? decoded["data"] : null;
+
     if (data is! Map || data["objects"] is! List) {
       throw CountryServiceException(
         "Beklenmeyen cevap yapısı: ${_snippet(response.body)}",
       );
     }
 
+    if (data["_demo"] != null) demoResponseDetected = true;
+
     final items = (data["objects"] as List)
         .whereType<Map>()
-        .map((e) => _normalize(Map<String, dynamic>.from(e)))
-        .where((e) => (e["name"] as String).isNotEmpty)
+        .map((e) => Country.fromV5(Map<String, dynamic>.from(e)))
+        .where((c) => c.isValid)
         .toList();
-
-    if (data["_demo"] != null) demoResponseDetected = true;
 
     final meta = data["meta"];
     final more = meta is Map && meta["more"] == true;
@@ -172,12 +135,11 @@ class CountryService {
   ///
   /// Diskte liste varsa ağ hiç beklenmez; uygulama anında açılır ve
   /// internet yokken de çalışır. Tazeleme [refreshIfStale] ile arka planda.
-  static Future<List<Map<String, dynamic>>> getAllCountries({
+  static Future<List<Country>> getAllCountries({
     bool forceRefresh = false,
   }) async {
     if (!forceRefresh && _cache != null) return _cache!;
 
-    // 1) Disk
     if (!forceRefresh) {
       final cached = await CountryCache.read();
       if (cached != null && cached.isNotEmpty) {
@@ -188,7 +150,6 @@ class CountryService {
       }
     }
 
-    // 2) Ağ
     final fresh = await _downloadAll();
 
     _cache = fresh;
@@ -227,11 +188,11 @@ class CountryService {
   /// Bir sayfa hata verirse elde olanla devam eder; sadece hiç kayıt
   /// gelmediyse hata fırlatır. 3. sayfa düştü diye ilk 200 ülkeyi
   /// çöpe atmıyoruz.
-  static Future<List<Map<String, dynamic>>> _downloadAll() async {
+  static Future<List<Country>> _downloadAll() async {
     demoResponseDetected = false;
     reportedTotal = null;
 
-    final all = <Map<String, dynamic>>[];
+    final all = <Country>[];
     var offset = 0;
     const pageSize = 100; // ücretsiz planın üst sınırı
 
@@ -241,7 +202,7 @@ class CountryService {
       _Page page;
 
       try {
-        page = await _fetchPage(
+        page = await _request(
           "?limit=$pageSize&offset=$offset&response_fields=$_responseFields",
         );
       } catch (e) {
@@ -263,198 +224,59 @@ class CountryService {
     }
 
     final seen = <String>{};
-    final unique = <Map<String, dynamic>>[];
+    final unique = <Country>[];
     for (final c in all) {
-      final name = c["name"] as String;
-      if (seen.add(name)) unique.add(c);
+      if (seen.add(c.name)) unique.add(c);
     }
 
-    unique.sort(
-      (a, b) => (a["name"] as String).compareTo(b["name"] as String),
-    );
-
+    unique.sort((a, b) => a.name.compareTo(b.name));
     return unique;
   }
 
   // ===============================================================
   // TEK ÜLKE
   // ===============================================================
-  static Future<Map<String, dynamic>?> getCountry(String name) async {
+  static Future<Country?> getCountry(String name) async {
     final query = name.trim();
     if (query.isEmpty) return null;
 
-    // 1) Elimizdeki listeden bak
+    // 1) Elimizdeki listeden bak - ağa hiç çıkmadan cevap verir
     final cached = _cache;
     if (cached != null) {
       final lower = query.toLowerCase();
+
       for (final c in cached) {
-        if ((c["name"] as String).toLowerCase() == lower) return c;
+        if (c.name.toLowerCase() == lower) return c;
       }
       for (final c in cached) {
-        if ((c["name"] as String).toLowerCase().contains(lower)) return c;
+        if (c.name.toLowerCase().contains(lower)) return c;
       }
     }
 
     // 2) Tam isimle oku
     try {
-      final exact = await _fetchObjects(
+      final exact = await _request(
         "/names.common/${Uri.encodeComponent(query)}"
         "?response_fields=$_responseFields",
       );
-      if (exact.isNotEmpty) return exact.first;
+      if (exact.items.isNotEmpty) return exact.items.first;
     } on CountryServiceException catch (e) {
       debugPrint("getCountry exact: $e");
     }
 
-    // 3) Bulamazsa isim araması yap
-    final found = await _fetchObjects(
+    // 3) Bulamazsa isim araması
+    final found = await _request(
       "/name?q=${Uri.encodeComponent(query)}&limit=5"
       "&response_fields=$_responseFields",
     );
 
-    return found.isEmpty ? null : found.first;
-  }
-
-  // ===============================================================
-  // v5 KAYDINI UYGULAMANIN KULLANDIĞI DÜZ YAPIYA ÇEVİR
-  // ===============================================================
-  static Map<String, dynamic> _normalize(Map<String, dynamic> raw) {
-    final currency = _readCurrency(raw);
-
-    return {
-      "name": _readName(raw),
-      "capital": _readCapital(raw),
-      "flag": _readFlag(raw),
-      "region": (raw["region"] ?? "").toString(),
-      "flagColor": _readFlagColor(raw),
-      "population": raw["population"] is num ? raw["population"] as num : null,
-      "currencyCode": currency?.$1 ?? "",
-      "currencyName": currency?.$2 ?? "",
-      "timezones": _readTimezones(raw),
-      "languages": _readLanguages(raw),
-      "alpha2": _readAlpha2(raw),
-    };
-  }
-
-  static String _readName(Map<String, dynamic> raw) {
-    final names = raw["names"];
-    if (names is Map && names["common"] != null) {
-      return names["common"].toString();
-    }
-    return "";
-  }
-
-  static String _readCapital(Map<String, dynamic> raw) {
-    final capitals = raw["capitals"];
-    if (capitals is List && capitals.isNotEmpty) {
-      final first = capitals.first;
-      if (first is Map && first["name"] != null) return first["name"].toString();
-      if (first is String) return first;
-    }
-    return "-";
-  }
-
-  static String _readFlag(Map<String, dynamic> raw) {
-    final flag = raw["flag"];
-    if (flag is Map) {
-      final png = flag["url_png"] ?? flag["url_svg"];
-      if (png != null) return png.toString();
-    }
-    // Elde bayrak yoksa ülke kodundan üret
-    final code = _readAlpha2(raw);
-    if (code.isNotEmpty) {
-      return "https://flagcdn.com/w320/${code.toLowerCase()}.png";
-    }
-    return "";
-  }
-
-  /// flag.colors.dominant -> "#RRGGBB". Yoksa boş string.
-  static String _readFlagColor(Map<String, dynamic> raw) {
-    final flag = raw["flag"];
-    if (flag is Map) {
-      final colors = flag["colors"];
-      if (colors is Map && colors["dominant"] != null) {
-        return colors["dominant"].toString();
-      }
-    }
-    return "";
-  }
-
-  static String _readAlpha2(Map<String, dynamic> raw) {
-    final codes = raw["codes"];
-    if (codes is Map && codes["alpha_2"] != null) {
-      return codes["alpha_2"].toString();
-    }
-    return "";
-  }
-
-  /// (kod, isim) - şekli kesin bilmediğimiz için birkaç olasılığı karşılıyoruz.
-  static (String, String)? _readCurrency(Map<String, dynamic> raw) {
-    final currencies = raw["currencies"];
-
-    if (currencies is Map && currencies.isNotEmpty) {
-      final code = currencies.keys.first.toString();
-      final detail = currencies[currencies.keys.first];
-
-      if (detail is Map) {
-        final name = (detail["name"] ?? detail["title"] ?? "").toString();
-        return (code, name);
-      }
-      if (detail is String) return (code, detail);
-      return (code, "");
-    }
-
-    if (currencies is List && currencies.isNotEmpty) {
-      final first = currencies.first;
-      if (first is Map) {
-        final code = (first["code"] ?? first["iso_4217"] ?? "").toString();
-        final name = (first["name"] ?? "").toString();
-        return (code, name);
-      }
-    }
-
-    return null;
-  }
-
-  static List<String> _readTimezones(Map<String, dynamic> raw) {
-    final zones = raw["timezones"];
-    if (zones is List) return zones.map((e) => e.toString()).toList();
-    if (zones is String) return [zones];
-    return const [];
-  }
-
-  static List<String> _readLanguages(Map<String, dynamic> raw) {
-    final langs = raw["languages"];
-
-    if (langs is List) {
-      final out = <String>[];
-      for (final item in langs) {
-        if (item is String) {
-          out.add(item);
-        } else if (item is Map) {
-          final name = item["english"] ??
-              item["name"] ??
-              item["english_name"] ??
-              item["name_english"] ??
-              item["native"] ??
-              item["native_name"];
-          if (name != null) out.add(name.toString());
-        }
-      }
-      return out;
-    }
-
-    // Eski şekil: {"deu": "German"}
-    if (langs is Map) {
-      return langs.values.map((e) => e.toString()).toList();
-    }
-
-    return const [];
+    return found.items.isEmpty ? null : found.items.first;
   }
 
   // ===============================================================
   // TL KARŞILIĞI
   // ===============================================================
+  /// 1 birim [currencyCode] kaç TL eder? Ulaşılamazsa "-".
   static Future<String> getTryRate(String currencyCode) async {
     final code = currencyCode.trim().toUpperCase();
     if (code.isEmpty) return "-";
@@ -462,6 +284,7 @@ class CountryService {
 
     try {
       final uri = Uri.parse("https://open.er-api.com/v6/latest/$code");
+      // Kur yan bilgi; sayfayı bekletmesin diye kısa timeout.
       final response =
           await http.get(uri).timeout(const Duration(seconds: 8));
 
@@ -484,19 +307,6 @@ class CountryService {
   }
 
   // ===============================================================
-  // YARDIMCILAR (UI bunları kullanıyor)
-  // ===============================================================
-  static String countryName(Map<String, dynamic> country) =>
-      (country["name"] ?? "").toString();
-
-  static String flagUrl(Map<String, dynamic> country) =>
-      (country["flag"] ?? "").toString();
-
-  static String capitalOf(Map<String, dynamic> country) {
-    final capital = (country["capital"] ?? "").toString();
-    return capital.isEmpty ? "-" : capital;
-  }
-
   static Future<void> clearCache() async {
     _cache = null;
     loadedFromCache = false;
@@ -511,7 +321,7 @@ class CountryService {
 }
 
 class _Page {
-  final List<Map<String, dynamic>> items;
+  final List<Country> items;
   final bool more;
   const _Page(this.items, this.more);
 }

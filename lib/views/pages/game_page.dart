@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,7 +67,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
   final Random _random = Random();
 
   /// Bayrağı olan ülkeler, nüfusa göre çoktan aza sıralı.
-  List<Map<String, dynamic>> _byPopulation = [];
+  List<Country> _byPopulation = [];
 
   bool _loading = true;
   String? _error;
@@ -80,8 +81,8 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
   final Set<String> _asked = {};
 
-  Map<String, dynamic>? _correct;
-  List<Map<String, dynamic>> _options = [];
+  Country? _correct;
+  List<Country> _options = [];
   _Level _level = _Level.easy;
 
   String? _selected;
@@ -132,18 +133,14 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
       final countries = await CountryService.getAllCountries();
 
-      final withFlags = countries
-          .where((c) => CountryService.flagUrl(c).isNotEmpty)
-          .toList();
+      final withFlags = countries.where((c) => c.flag.isNotEmpty).toList();
 
       if (withFlags.length < 4) throw _NotEnoughCountries(withFlags.length);
 
       // Nüfusu yüksek ülke = daha tanıdık ülke. Kademeleri buna göre kuruyoruz.
-      withFlags.sort((a, b) {
-        final pa = a["population"] is num ? (a["population"] as num) : 0;
-        final pb = b["population"] is num ? (b["population"] as num) : 0;
-        return pb.compareTo(pa);
-      });
+      withFlags.sort(
+        (a, b) => (b.population ?? 0).compareTo(a.population ?? 0),
+      );
 
       if (!mounted) return;
 
@@ -167,7 +164,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
   // SORU KURMA
   // ===============================================================
   /// Kademeye göre doğru cevabın seçileceği alt havuz.
-  List<Map<String, dynamic>> _tierPool(_Level level) {
+  List<Country> _tierPool(_Level level) {
     final n = _byPopulation.length;
 
     // Havuz küçükse kademelere bölmenin anlamı yok.
@@ -183,51 +180,42 @@ class _FlagGamePageState extends State<FlagGamePage> {
   }
 
   /// Yanlış şıkları kademeye göre seç. Zorlaştıran şey burası.
-  List<Map<String, dynamic>> _pickDistractors(
-    Map<String, dynamic> correct,
-    _Level level,
-  ) {
-    final correctName = CountryService.countryName(correct);
-    final region = (correct["region"] ?? "").toString();
-    final color = (correct["flagColor"] ?? "").toString();
+  List<Country> _pickDistractors(Country correct, _Level level) {
+    final correctName = correct.name;
+    final region = correct.region;
+    final color = correct.flagColor;
 
-    final others = _byPopulation
-        .where((c) => CountryService.countryName(c) != correctName)
-        .toList();
+    final others =
+        _byPopulation.where((c) => c.name != correctName).toList();
 
-    List<Map<String, dynamic>> candidates;
+    List<Country> candidates;
 
     switch (level) {
       case _Level.easy:
         // Başka bölgelerden -> ayırt etmesi kolay
-        candidates =
-            others.where((c) => (c["region"] ?? "") != region).toList();
+        candidates = others.where((c) => c.region != region).toList();
 
       case _Level.medium:
         // Aynı bölgeden -> komşu ülkeler karışır
-        candidates =
-            others.where((c) => (c["region"] ?? "") == region).toList();
+        candidates = others.where((c) => c.region == region).toList();
 
       case _Level.hard:
         // Aynı bölge + benzer baskın renk -> asıl zor olan bu
         candidates = others
             .where((c) =>
-                (c["region"] ?? "") == region &&
-                _colorDistance((c["flagColor"] ?? "").toString(), color) <
-                    _colorThreshold)
+                c.region == region &&
+                _colorDistance(c.flagColor, color) < _colorThreshold)
             .toList();
 
         // Yeterli aday yoksa kademe kademe gevşet
         if (candidates.length < 3) {
           candidates = others
               .where((c) =>
-                  _colorDistance((c["flagColor"] ?? "").toString(), color) <
-                  _colorThreshold)
+                  _colorDistance(c.flagColor, color) < _colorThreshold)
               .toList();
         }
         if (candidates.length < 3) {
-          candidates =
-              others.where((c) => (c["region"] ?? "") == region).toList();
+          candidates = others.where((c) => c.region == region).toList();
         }
     }
 
@@ -236,12 +224,12 @@ class _FlagGamePageState extends State<FlagGamePage> {
     candidates.shuffle(_random);
 
     // Aynı isim iki şıkta çıkmasın
-    final picked = <Map<String, dynamic>>[];
+    final picked = <Country>[];
     final usedNames = <String>{correctName};
 
     for (final c in candidates) {
       if (picked.length == 3) break;
-      if (usedNames.add(CountryService.countryName(c))) picked.add(c);
+      if (usedNames.add(c.name)) picked.add(c);
     }
 
     return picked;
@@ -252,13 +240,12 @@ class _FlagGamePageState extends State<FlagGamePage> {
     final pool = _tierPool(level);
 
     // Aynı ülkeyi iki kez sormamaya çalış
-    Map<String, dynamic> correct = pool[_random.nextInt(pool.length)];
+    Country correct = pool[_random.nextInt(pool.length)];
     for (var i = 0; i < 25; i++) {
-      final name = CountryService.countryName(correct);
-      if (!_asked.contains(name)) break;
+      if (!_asked.contains(correct.name)) break;
       correct = pool[_random.nextInt(pool.length)];
     }
-    _asked.add(CountryService.countryName(correct));
+    _asked.add(correct.name);
 
     final options = [correct, ..._pickDistractors(correct, level)];
     options.shuffle(_random);
@@ -318,11 +305,11 @@ class _FlagGamePageState extends State<FlagGamePage> {
     _nextQuestion();
   }
 
-  void _answer(Map<String, dynamic> option) {
+  void _answer(Country option) {
     if (_selected != null) return;
 
-    final name = CountryService.countryName(option);
-    final correctName = CountryService.countryName(_correct!);
+    final name = option.name;
+    final correctName = _correct!.name;
     final isRight = name == correctName;
 
     setState(() {
@@ -373,7 +360,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
   // ===============================================================
   Color _optionColor(String name) {
     if (_selected == null) return const Color(0xFF162440);
-    final correctName = CountryService.countryName(_correct!);
+    final correctName = _correct!.name;
     if (name == correctName) return const Color(0xFF1B5E3F);
     if (name == _selected) return const Color(0xFF6B2130);
     return const Color(0xFF162440);
@@ -381,7 +368,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
   Color _optionBorder(String name) {
     if (_selected == null) return const Color(0xFF223B5E);
-    final correctName = CountryService.countryName(_correct!);
+    final correctName = _correct!.name;
     if (name == correctName) return const Color(0xFF2ED573);
     if (name == _selected) return const Color(0xFFFF4757);
     return const Color(0xFF223B5E);
@@ -389,7 +376,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
   IconData? _optionIcon(String name) {
     if (_selected == null) return null;
-    final correctName = CountryService.countryName(_correct!);
+    final correctName = _correct!.name;
     if (name == correctName) return Icons.check_circle;
     if (name == _selected) return Icons.cancel;
     return null;
@@ -509,7 +496,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
   // ---------------------------------------------------------------
   Widget _buildQuestion() {
-    final flag = CountryService.flagUrl(_correct!);
+    final flag = _correct!.flag;
 
     return SafeArea(
       child: Column(
@@ -604,6 +591,8 @@ class _FlagGamePageState extends State<FlagGamePage> {
                 child: Image.network(
                   flag,
                   height: 140,
+                  // Bilerek semanticLabel yok: ülke adı cevabın kendisi.
+                  excludeFromSemantics: true,
                   fit: BoxFit.contain,
                   loadingBuilder: (_, child, progress) => progress == null
                       ? child
@@ -666,8 +655,8 @@ class _FlagGamePageState extends State<FlagGamePage> {
     );
   }
 
-  Widget _buildOption(Map<String, dynamic> option) {
-    final name = CountryService.countryName(option);
+  Widget _buildOption(Country option) {
+    final name = option.name;
     final icon = _optionIcon(name);
 
     return Padding(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:globeinfo/data/country.dart';
 
 /// assets/data/countries_database.json içindeki vize kurallarını yükler.
 ///
@@ -68,16 +69,14 @@ class VisaDatabase {
     return (note == null || note.isEmpty) ? null : note;
   }
 
-  /// Ülke kayıtlarına `visa`, `entry` ve `visaNote` alanlarını ekler.
-  static List<Map<String, dynamic>> attachTo(
-    List<Map<String, dynamic>> countries,
-    String Function(Map<String, dynamic>) nameOf,
-  ) {
+  /// Ülke nesnelerine vize bilgilerini iliştirir.
+  /// Vize verisi olmayan ülkelerde alanlar null kalır.
+  static List<Country> attachTo(List<Country> countries) {
     for (final country in countries) {
-      final record = findByCountry(nameOf(country));
-      country["visa"] = record?["visa"];
-      country["entry"] = record?["entry"];
-      country["visaNote"] = record?["note"];
+      final record = findByCountry(country.name);
+      country.visa = record?["visa"]?.toString();
+      country.entry = record?["entry"]?.toString();
+      country.visaNote = record?["note"]?.toString();
     }
     return countries;
   }

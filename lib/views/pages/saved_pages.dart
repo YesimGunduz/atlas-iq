@@ -146,6 +146,7 @@ class _SavedPageState extends State<SavedPage> {
                                       width: 55,
                                       height: 38,
                                       fit: BoxFit.cover,
+                                      semanticLabel: "${item.name} bayrağı",
                                       errorBuilder: (_, __, ___) => Container(
                                         width: 55,
                                         height: 38,

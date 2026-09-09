@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:globeinfo/data/labels.dart';
+import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/data/country_names_tr.dart';
+import 'package:globeinfo/data/labels.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
 import 'package:globeinfo/services/visa_engine.dart';
@@ -60,10 +61,10 @@ class _HomePageState extends State<HomePage> {
   final FocusNode _focusNode = FocusNode();
 
   /// API'den gelen tam liste (hiç değişmez)
-  List<Map<String, dynamic>> allCountries = [];
+  List<Country> allCountries = [];
 
   /// Ekranda gösterilen liste (arama + filtre sonucu)
-  List<Map<String, dynamic>> countries = [];
+  List<Country> countries = [];
 
   bool isLoading = true;
   String? errorMessage;
@@ -123,7 +124,7 @@ class _HomePageState extends State<HomePage> {
       await VisaDatabase.load();
 
       final data = await CountryService.getAllCountries();
-      VisaDatabase.attachTo(data, CountryService.countryName);
+      VisaDatabase.attachTo(data);
 
       if (!mounted) return;
 
@@ -154,7 +155,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final data = await CountryService.getAllCountries();
-      VisaDatabase.attachTo(data, CountryService.countryName);
+      VisaDatabase.attachTo(data);
 
       if (!mounted) return;
       setState(() => allCountries = data);
@@ -183,9 +184,7 @@ class _HomePageState extends State<HomePage> {
 
     if (query.isNotEmpty) {
       result = result
-          .where(
-            (c) => CountryNamesTr.matches(CountryService.countryName(c), query),
-          )
+          .where((c) => CountryNamesTr.matches(c.name, query))
           .toList();
     }
 
@@ -239,13 +238,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openCountry(Map<String, dynamic> country) {
-    final name = CountryService.countryName(country);
-    if (name.isEmpty) return;
+  void _openCountry(Country country) {
+    if (country.name.isEmpty) return;
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => CountryDetailPage(query: name)),
+      MaterialPageRoute(builder: (_) => CountryDetailPage(query: country.name)),
     );
   }
 
@@ -277,10 +275,7 @@ class _HomePageState extends State<HomePage> {
   int get _languageCount {
     final all = <String>{};
     for (final c in allCountries) {
-      final langs = c["languages"];
-      if (langs is List) {
-        all.addAll(langs.map((e) => e.toString()));
-      }
+      all.addAll(c.languages);
     }
     return all.length;
   }
@@ -643,11 +638,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ---------------- ÜLKE KARTI ----------------
-  Widget _countryCard(Map<String, dynamic> country) {
-    final name = CountryService.countryName(country);
-    final capital = CountryService.capitalOf(country);
-    final flag = CountryService.flagUrl(country);
-    final visa = country["visa"]?.toString();
+  Widget _countryCard(Country country) {
+    final name = country.name;
+    final capital = country.capital;
+    final flag = country.flag;
+    final visa = country.visa;
 
     return InkWell(
       onTap: () => _openCountry(country),
@@ -669,6 +664,7 @@ class _HomePageState extends State<HomePage> {
                 width: 48,
                 height: 34,
                 fit: BoxFit.cover,
+                semanticLabel: "$name bayrağı",
                 errorBuilder: (_, __, ___) => Container(
                   width: 48,
                   height: 34,

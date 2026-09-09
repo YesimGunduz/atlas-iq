@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/data/labels.dart';
 import 'package:globeinfo/data/saved_data.dart';
 import 'package:globeinfo/services/country_services.dart';
@@ -15,14 +16,14 @@ class CountryDetailPage extends StatefulWidget {
 }
 
 class _CountryDetailPageState extends State<CountryDetailPage> {
-  Map<String, dynamic>? country;
+  Country? country;
 
   bool isLoading = true;
   bool isSaved = false;
   String? errorMessage;
 
-  String currencyCode = "";
-  String tryRate = "-";
+  /// Boş: kur henüz yükleniyor. "-": kur alınamadı.
+  String tryRate = "";
   String timeDifference = "-";
 
   @override
@@ -43,7 +44,6 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       isLoading = true;
       errorMessage = null;
       tryRate = "";
-      currencyCode = "";
     });
 
     try {
@@ -61,44 +61,21 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
         return;
       }
 
-      // --- Ekranı HEMEN çiz. Kur gibi yavaş olabilecek şeyleri bekletme. ---
-      final name = CountryService.countryName(data);
-
-      // Saat farkı (yerel hesap, anında)
-      String diffText = "-";
-      final zones = data["timezones"];
-      if (zones is List && zones.isNotEmpty) {
-        final countryMinutes = _offsetMinutes(zones.first.toString());
-        const turkeyMinutes = 3 * 60;
-        final diff = countryMinutes - turkeyMinutes;
-
-        if (diff > 0) {
-          diffText = "${_durationText(diff)} ileri";
-        } else if (diff < 0) {
-          diffText = "${_durationText(diff.abs())} geri";
-        } else {
-          diffText = "Türkiye ile aynı saat";
-        }
-      }
-
-      // Para birimi kodu
-      final code = (data["currencyCode"] ?? "").toString();
-
+      // Ekranı HEMEN çiz; kur gibi yavaş olabilecek şeyleri bekletme.
       setState(() {
         country = data;
-        isSaved = SavedData.contains(name);
-        timeDifference = diffText;
-        currencyCode = code;
+        isSaved = SavedData.contains(data.name);
+        timeDifference = _timeDifferenceText(data);
         isLoading = false;
       });
 
-      // --- Kur arka planda gelsin, sayfa çoktan açıldı. ---
-      if (code.isEmpty) {
+      // Kur arka planda gelsin, sayfa çoktan açıldı.
+      if (data.currencyCode.isEmpty) {
         if (mounted) setState(() => tryRate = "-");
         return;
       }
 
-      final rate = await CountryService.getTryRate(code);
+      final rate = await CountryService.getTryRate(data.currencyCode);
       if (!mounted) return;
       setState(() => tryRate = rate);
     } catch (e) {
@@ -112,19 +89,19 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
   }
 
   // ---------------------------------------------------------------
-  // SAAT DİLİMİ
+  // SAAT
   // ---------------------------------------------------------------
-  /// "UTC+05:30" / "UTC-03:00" / "UTC" -> dakika cinsinden fark
-  static int _offsetMinutes(String timezone) {
-    final match =
-        RegExp(r'UTC([+-])(\d{1,2})(?::(\d{2}))?').firstMatch(timezone);
-    if (match == null) return 0;
+  /// Türkiye kalıcı olarak UTC+3.
+  static const int _turkeyOffsetMinutes = 3 * 60;
 
-    final sign = match.group(1) == "-" ? -1 : 1;
-    final hours = int.tryParse(match.group(2) ?? "0") ?? 0;
-    final minutes = int.tryParse(match.group(3) ?? "0") ?? 0;
+  static String _timeDifferenceText(Country c) {
+    if (c.timezones.isEmpty) return "-";
 
-    return sign * (hours * 60 + minutes);
+    final diff = c.utcOffsetMinutes - _turkeyOffsetMinutes;
+
+    if (diff > 0) return "${_durationText(diff)} ileri";
+    if (diff < 0) return "${_durationText(diff.abs())} geri";
+    return "Türkiye ile aynı saat";
   }
 
   static String _durationText(int minutes) {
@@ -135,56 +112,14 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
   }
 
   // ---------------------------------------------------------------
-  // GÖSTERİM YARDIMCILARI
-  // ---------------------------------------------------------------
-  String get _name =>
-      country == null ? widget.query : CountryService.countryName(country!);
-
-  String getCurrency() {
-    final code = (country?['currencyCode'] ?? "").toString();
-    if (code.isEmpty) return "-";
-
-    final name = (country?['currencyName'] ?? "").toString();
-    return name.isEmpty ? code : "$code ($name)";
-  }
-
-  String getTimezone() {
-    final zones = country?['timezones'];
-    if (zones is! List || zones.isEmpty) return "-";
-    return zones.join(", ");
-  }
-
-  List<String> get _zones {
-    final zones = country?['timezones'];
-    return zones is List ? zones.map((e) => e.toString()).toList() : const [];
-  }
-
-  String getPopulation() {
-    final pop = country?['population'];
-    if (pop is! num) return "-";
-
-    // 84000000 -> 84.000.000
-    final digits = pop.toInt().toString();
-    final buffer = StringBuffer();
-
-    for (var i = 0; i < digits.length; i++) {
-      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(digits[i]);
-    }
-    return buffer.toString();
-  }
-
-  String getLanguages() {
-    final langs = country?['languages'];
-    if (langs is! List || langs.isEmpty) return "-";
-    return langs.join(", ");
-  }
+  String get _name => country?.name ?? widget.query;
 
   String get _tryRateText {
-    if (currencyCode.isEmpty) return "-";
+    final c = country;
+    if (c == null || c.currencyCode.isEmpty) return "-";
     if (tryRate.isEmpty) return "hesaplanıyor...";
     if (tryRate == "-") return "kur alınamadı";
-    return "1 $currencyCode = $tryRate TL";
+    return "1 ${c.currencyCode} = $tryRate TL";
   }
 
   // ---------------------------------------------------------------
@@ -192,7 +127,6 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
     final data = country;
     if (data == null) return;
 
-    final name = CountryService.countryName(data);
     final messenger = ScaffoldMessenger.of(context);
     final willSave = !isSaved;
 
@@ -201,14 +135,14 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
     if (willSave) {
       await SavedData.add(
         SavedCountry(
-          name: name,
-          capital: CountryService.capitalOf(data),
-          flag: CountryService.flagUrl(data),
-          continent: (data['region'] ?? "-").toString(),
+          name: data.name,
+          capital: data.capital,
+          flag: data.flag,
+          continent: data.region,
         ),
       );
     } else {
-      await SavedData.remove(name);
+      await SavedData.remove(data.name);
     }
 
     messenger
@@ -219,8 +153,8 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           backgroundColor: const Color(0xFF162A45),
           content: Text(
             willSave
-                ? "$name kaydedildi"
-                : "$name kaydedilenlerden çıkarıldı",
+                ? "${data.name} kaydedildi"
+                : "${data.name} kaydedilenlerden çıkarıldı",
             style: const TextStyle(color: Colors.white),
           ),
         ),
@@ -266,12 +200,9 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       builder: (context, snapshot) {
         final nowUtc = DateTime.now().toUtc();
 
-        final turkey = nowUtc.add(const Duration(hours: 3));
-
-        final zones = _zones;
-        final offset =
-            zones.isNotEmpty ? _offsetMinutes(zones.first) : 0;
-        final countryTime = nowUtc.add(Duration(minutes: offset));
+        final turkey = nowUtc.add(const Duration(minutes: _turkeyOffsetMinutes));
+        final countryTime =
+            nowUtc.add(Duration(minutes: country?.utcOffsetMinutes ?? 0));
 
         String format(DateTime t) =>
             "${t.hour.toString().padLeft(2, '0')}:"
@@ -355,6 +286,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           if (country != null)
             IconButton(
               onPressed: _toggleSaved,
+              tooltip: isSaved ? "Kaydedilenlerden çıkar" : "Kaydet",
               icon: Icon(
                 isSaved ? Icons.star : Icons.star_border,
                 color: Colors.yellow,
@@ -374,9 +306,11 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       );
     }
 
-    if (country == null) {
+    final c = country;
+
+    if (c == null) {
       return Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -402,10 +336,10 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       );
     }
 
-    final visa = VisaDatabase.visaOf(_name);
-    final entry = VisaDatabase.entryOf(_name);
-    final note = VisaDatabase.noteOf(_name);
-    final flag = CountryService.flagUrl(country!);
+    // Vize bilgisi listeden iliştirilmiş olabilir; olmadıysa dosyadan oku.
+    final visa = c.visa ?? VisaDatabase.visaOf(c.name);
+    final entry = c.entry ?? VisaDatabase.entryOf(c.name);
+    final note = c.visaNote ?? VisaDatabase.noteOf(c.name);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -414,9 +348,10 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.network(
-              flag,
+              c.flag,
               height: 120,
               fit: BoxFit.contain,
+              semanticLabel: "${c.name} bayrağı",
               errorBuilder: (_, __, ___) => const Icon(
                 Icons.flag,
                 size: 60,
@@ -426,7 +361,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           ),
           const SizedBox(height: 12),
           Text(
-            _name,
+            c.name,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
@@ -439,14 +374,14 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           dualLiveClock(),
 
           infoCard("Saat farkı", timeDifference),
-          infoCard("Başkent", CountryService.capitalOf(country!)),
-          infoCard("Bölge", Labels.region(country!['region']?.toString())),
-          infoCard("Nüfus", getPopulation()),
-          infoCard("Diller", getLanguages()),
-          infoCard("Para birimi", getCurrency()),
+          infoCard("Başkent", c.capital),
+          infoCard("Bölge", Labels.region(c.region)),
+          infoCard("Nüfus", c.populationText),
+          infoCard("Diller", c.languagesText),
+          infoCard("Para birimi", c.currencyText),
           infoCard("TL karşılığı", _tryRateText,
               valueColor: Colors.greenAccent),
-          infoCard("Saat dilimi", getTimezone()),
+          infoCard("Saat dilimi", c.timezonesText),
 
           if (visa != null)
             infoCard("Vize", Labels.visa(visa),
