@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:globeinfo/data/saved_data.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
 import 'package:globeinfo/theme/app_colors.dart';
@@ -52,6 +53,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _loadEverything() async {
     try {
+      // Dili en başta yükle ki splash yazıları doğru dilde çıksın.
+      await LocaleController.instance.load();
       await SavedData.instance.load();
       await VisaDatabase.load();
       await CountryService.getAllCountries();
@@ -102,12 +105,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
                 const Spacer(flex: 3),
 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Text(
-                    "Ülkeleri, bayrakları ve güncel bilgileri tek yerde keşfet",
+                    S.splashTagline,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.splashText,
                       fontSize: 16,
                       shadows: shadows,
@@ -124,9 +127,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
                 const SizedBox(height: 10),
 
-                const Text(
-                  "Dünya verileri yükleniyor...",
-                  style: TextStyle(
+                Text(
+                  S.splashLoading,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
                     shadows: shadows,

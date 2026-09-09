@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
+import 'package:globeinfo/views/widgets/language_toggle.dart';
 
 class HomeHeader extends StatelessWidget {
   /// Sağ üstteki "Oyna" düğmesine basıldığında çalışır.
-  /// null verilirse düğme hiç görünmez.
+  /// null verilirse düğme görünmez.
   final VoidCallback? onPlay;
 
   const HomeHeader({super.key, this.onPlay});
@@ -15,30 +17,27 @@ class HomeHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColors.headerStart,
-            AppColors.headerEnd,
-          ],
+          colors: [AppColors.headerStart, AppColors.headerEnd],
         ),
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "HOŞ GELDİN",
-                  style: TextStyle(
+                  S.welcomeBack,
+                  style: const TextStyle(
                     color: AppColors.accent,
                     fontSize: 12,
                   ),
                 ),
-                SizedBox(height: 6),
-                Text(
+                const SizedBox(height: 6),
+                const Text(
                   "ATLAS IQ",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -47,14 +46,19 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
 
-          if (onPlay != null) _PlayButton(onTap: onPlay!),
+          const LanguageToggle(),
+
+          if (onPlay != null) ...[
+            const SizedBox(width: 8),
+            _PlayButton(onTap: onPlay!),
+          ],
         ],
       ),
     );
   }
 }
 
-/// Sağ üstteki oyun düğmesi. Hafifçe nabız gibi atarak dikkat çeker.
+/// Hafifçe nabız gibi atarak dikkat çeken oyun düğmesi.
 class _PlayButton extends StatefulWidget {
   final VoidCallback onTap;
   const _PlayButton({required this.onTap});
@@ -105,14 +109,15 @@ class _PlayButtonState extends State<_PlayButton>
                 ),
               ],
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.sports_esports, color: Colors.white, size: 16),
-                SizedBox(width: 6),
+                const Icon(Icons.sports_esports,
+                    color: Colors.white, size: 16),
+                const SizedBox(width: 6),
                 Text(
-                  "Oyna",
-                  style: TextStyle(
+                  S.play,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,

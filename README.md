@@ -12,6 +12,8 @@ da içeren bir Flutter uygulaması.
 - **Bayrak oyunu** — kolaydan zora üç kademe; zor seviyede şıklar aynı
   bölgeden ve benzer bayrak renklerinden seçiliyor
 - **Çevrimdışı çalışır** — liste diske yazılıyor, internet yokken de açılıyor
+- **Türkçe ve İngilizce** — üst bardaki TR/EN düğmesiyle anlık geçiş, tercih
+  cihazda saklanıyor
 
 ## Kurulum
 
@@ -54,8 +56,10 @@ lib/
 ├── data/
 │   ├── country.dart          Country modeli; API ve önbellek okuması
 │   ├── country_names_tr.dart Türkçe ülke adı eşlemesi
-│   ├── labels.dart           İngilizce veri değerlerinin Türkçe karşılıkları
-│   └── saved_data.dart       Kaydedilen ülkeler (shared_preferences)
+│   └── saved_data.dart       Kaydedilen ülkeler (ChangeNotifier)
+├── i18n/
+│   ├── app_strings.dart      Bütün metinler, TR ve EN
+│   └── locale_controller.dart Seçili dil, diske kaydediliyor
 ├── services/
 │   ├── country_services.dart REST Countries v5 istemcisi
 │   ├── country_cache.dart    Çevrimdışı önbellek
@@ -66,9 +70,16 @@ lib/
     └── widgets/              header, footer, filter_sheet
 ```
 
+### Diller
+
+Bütün metinler `lib/i18n/app_strings.dart` içinde. Harita yerine soyut sınıf +
+her dil için bir uygulama kullanıldı; böylece **derleyici** iki dilin de
+eksiksiz olduğunu kontrol ediyor — yeni bir metin eklediğinde hem `TrStrings`
+hem `EnStrings` onu tanımlamak zorunda.
+
 Veri değerleri (`Visa Free`, `Passport Required`, `Europe` …) her yerde
-İngilizce tutuluyor; çeviri yalnızca gösterim katmanında, `labels.dart`
-üzerinden yapılıyor. İkinci bir dil eklemek o dosyaya bir harita eklemek demek.
+İngilizce tutuluyor; çeviri yalnızca gösterim anında yapılıyor. Üçüncü bir dil
+eklemek: `AppLocale`'e bir değer, `AppStrings`'e bir uygulama.
 
 ## Test
 

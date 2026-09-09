@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 
@@ -36,7 +37,7 @@ class DataNotice extends StatelessWidget {
             const SizedBox(width: 6),
             Expanded(
               child: Text(
-                "Kayıtlı veriden açıldı${_ageText()} · arka planda güncelleniyor",
+                S.cacheNotice(_ageText()),
                 style: const TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 11,
@@ -49,8 +50,8 @@ class DataNotice extends StatelessWidget {
     }
 
     final countText = total != null
-        ? "$loadedCount / $total ülke yüklendi"
-        : "$loadedCount ülke yüklendi";
+        ? S.loadedOf(loadedCount, total)
+        : S.loadedCount(loadedCount);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -82,12 +83,8 @@ class DataNotice extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     CountryService.isUsingDemoKey
-                        ? "Demo anahtarı sadece örnek veri döndürüyor. "
-                            "Tam liste için restcountries.com'dan ücretsiz "
-                            "anahtar al ve uygulamayı şöyle başlat:\n"
-                            "flutter run --dart-define=RC_API_KEY=anahtarin"
-                        : "API tam listeyi döndürmedi. Yenilemek için "
-                            "uygulamayı yeniden başlatabilirsin.",
+                        ? S.demoNoticeDetail
+                        : S.incompleteNoticeDetail,
                     style: const TextStyle(
                       color: AppColors.warningText,
                       fontSize: 11,
@@ -109,8 +106,8 @@ class DataNotice extends StatelessWidget {
     if (date == null) return "";
 
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 60) return " · ${diff.inMinutes} dk önce";
-    if (diff.inHours < 24) return " · ${diff.inHours} saat önce";
-    return " · ${diff.inDays} gün önce";
+    if (diff.inMinutes < 60) return S.minutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return S.hoursAgo(diff.inHours);
+    return S.daysAgo(diff.inDays);
   }
 }

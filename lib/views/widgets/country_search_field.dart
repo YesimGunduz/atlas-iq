@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 
 /// Ana sayfadaki arama kutusu.
@@ -53,7 +54,7 @@ class CountrySearchField extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.close,
                     color: AppColors.textMuted, size: 18),
-                tooltip: "Aramayı temizle",
+                tooltip: S.clearSearch,
                 onPressed: controller.clear,
               ),
             SizedBox(

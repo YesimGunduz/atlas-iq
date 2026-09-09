@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:globeinfo/data/country.dart';
-import 'package:globeinfo/data/labels.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 
 /// Ana sayfadaki liste satırı: bayrak, ülke adı, başkent ve vize rozeti.
@@ -38,7 +38,7 @@ class CountryCard extends StatelessWidget {
                 width: 48,
                 height: 34,
                 fit: BoxFit.cover,
-                semanticLabel: "${country.name} bayrağı",
+                semanticLabel: S.flagAlt(country.name, ""),
                 errorBuilder: (_, __, ___) => Container(
                   width: 48,
                   height: 34,
@@ -81,7 +81,7 @@ class CountryCard extends StatelessWidget {
                   border: Border.all(color: AppColors.visa(visa)),
                 ),
                 child: Text(
-                  Labels.visa(visa),
+                  S.visaLabel(visa),
                   style: TextStyle(color: AppColors.visa(visa), fontSize: 10),
                 ),
               ),

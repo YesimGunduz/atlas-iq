@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:globeinfo/data/country.dart';
-import 'package:globeinfo/data/labels.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/data/saved_data.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
@@ -84,7 +84,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       setState(() {
         country = null;
         isLoading = false;
-        errorMessage = "Bilgiler alınamadı. Bağlantını kontrol et.\n($e)";
+        errorMessage = "${S.detailLoadFailed}\n($e)";
       });
     }
   }
@@ -100,16 +100,16 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
 
     final diff = c.utcOffsetMinutes - _turkeyOffsetMinutes;
 
-    if (diff > 0) return "${_durationText(diff)} ileri";
-    if (diff < 0) return "${_durationText(diff.abs())} geri";
-    return "Türkiye ile aynı saat";
+    if (diff > 0) return S.hoursAhead(_durationText(diff));
+    if (diff < 0) return S.hoursBehind(_durationText(diff.abs()));
+    return S.sameTime;
   }
 
   static String _durationText(int minutes) {
     final h = minutes ~/ 60;
     final m = minutes % 60;
-    if (m == 0) return "$h saat";
-    return "$h saat $m dakika";
+    if (m == 0) return S.durationHours(h);
+    return S.durationHoursMinutes(h, m);
   }
 
   // ---------------------------------------------------------------
@@ -118,8 +118,8 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
   String get _tryRateText {
     final c = country;
     if (c == null || c.currencyCode.isEmpty) return "-";
-    if (tryRate.isEmpty) return "hesaplanıyor...";
-    if (tryRate == "-") return "kur alınamadı";
+    if (tryRate.isEmpty) return S.rateLoading;
+    if (tryRate == "-") return S.rateFailed;
     return "1 ${c.currencyCode} = $tryRate TL";
   }
 
@@ -154,8 +154,8 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           backgroundColor: AppColors.surfaceCard,
           content: Text(
             willSave
-                ? "${data.name} kaydedildi"
-                : "${data.name} kaydedilenlerden çıkarıldı",
+                ? S.savedToast(data.name)
+                : "${data.name} ${S.unsavedToast}",
             style: const TextStyle(color: Colors.white),
           ),
         ),
@@ -248,7 +248,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                "VİZE DURUMU",
+                S.visaStatus,
                 style: TextStyle(
                   color: color.withValues(alpha: 0.9),
                   fontSize: 11,
@@ -260,7 +260,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           ),
           const SizedBox(height: 10),
           Text(
-            known ? Labels.visa(visa) : "Kayıt yok",
+            known ? S.visaLabel(visa) : S.visaUnknown,
             style: TextStyle(
               color: color,
               fontSize: 26,
@@ -270,7 +270,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           if (known && entry != null) ...[
             const SizedBox(height: 4),
             Text(
-              Labels.entry(entry),
+              S.entryLabel(entry),
               style: const TextStyle(
                 color: AppColors.textBody,
                 fontSize: 14,
@@ -300,9 +300,12 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           ],
           if (!known) ...[
             const SizedBox(height: 6),
-            const Text(
-              "Bu ülke vize veri dosyasında yok.",
-              style: TextStyle(color: AppColors.textLabel, fontSize: 13),
+            Text(
+              S.visaUnknownDetail,
+              style: const TextStyle(
+                color: AppColors.textLabel,
+                fontSize: 13,
+              ),
             ),
           ],
         ],
@@ -337,7 +340,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _clockColumn("TÜRKİYE", format(turkey), Colors.greenAccent),
+              _clockColumn(S.turkeyLabel, format(turkey), Colors.greenAccent),
               _clockColumn(
                 _name.toUpperCase(),
                 format(countryTime),
@@ -387,7 +390,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
           if (country != null)
             IconButton(
               onPressed: _toggleSaved,
-              tooltip: isSaved ? "Kaydedilenlerden çıkar" : "Kaydet",
+              tooltip: isSaved ? S.unsaveTooltip : S.saveTooltip,
               icon: Icon(
                 isSaved ? Icons.star : Icons.star_border,
                 color: Colors.yellow,
@@ -420,8 +423,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               const SizedBox(height: 12),
               Text(
                 errorMessage ??
-                    "\"${widget.query}\" bulunamadı.\n"
-                        "Ülke adını İngilizce yazmayı dene (ör. Germany).",
+                    "${S.notFound(widget.query)}\n${S.notFoundHint}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70),
               ),
@@ -429,7 +431,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               ElevatedButton.icon(
                 onPressed: fetchCountry,
                 icon: const Icon(Icons.refresh),
-                label: const Text("Tekrar dene"),
+                label: Text(S.tryAgain),
               ),
             ],
           ),
@@ -452,7 +454,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               c.flag,
               height: 120,
               fit: BoxFit.contain,
-              semanticLabel: c.flagAltText,
+              semanticLabel: S.flagAlt(c.name, c.flagDescription),
               errorBuilder: (_, __, ___) => const Icon(
                 Icons.flag,
                 size: 60,
@@ -494,22 +496,22 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
 
           // 3) Geri kalan bilgiler tek grupta, daha sakin
           _infoGroup([
-            _InfoRow("Saat farkı", timeDifference),
-            _InfoRow("Başkent", c.capital),
-            _InfoRow("Bölge", Labels.region(c.region)),
-            _InfoRow("Nüfus", c.populationText),
-            _InfoRow("Diller", c.languagesText),
-            _InfoRow("Para birimi", c.currencyText),
-            _InfoRow("TL karşılığı", _tryRateText,
+            _InfoRow(S.rowTimeDiff, timeDifference),
+            _InfoRow(S.rowCapital, c.capital),
+            _InfoRow(S.rowRegion, S.regionLabel(c.region)),
+            _InfoRow(S.rowPopulation, c.populationText),
+            _InfoRow(S.rowLanguages, c.languagesText),
+            _InfoRow(S.rowCurrency, c.currencyText),
+            _InfoRow(S.rowExchange, _tryRateText,
                 color: Colors.greenAccent),
-            _InfoRow("Saat dilimi", c.timezonesText),
+            _InfoRow(S.rowTimezone, c.timezonesText),
           ]),
 
           if (visa != null && VisaDatabase.disclaimer.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 8),
               child: Text(
-                "${VisaDatabase.passport} için. ${VisaDatabase.disclaimer}",
+                "${S.forPassport(VisaDatabase.passport)} ${VisaDatabase.disclaimer}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.textDim,

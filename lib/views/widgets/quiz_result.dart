@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 
 /// Oyun bitince gösterilen sonuç ekranı.
@@ -28,10 +29,10 @@ class QuizResult extends StatelessWidget {
   });
 
   String get _message {
-    if (correctCount == questionCount) return "Kusursuz! Zor soruları da bildin.";
-    if (score >= maxScore * 0.7) return "İyi iş, coğrafyan sağlam.";
-    if (score >= maxScore * 0.4) return "Fena değil, zor sorular biraz zorladı.";
-    return "Bayraklara biraz daha bakmak lazım.";
+    if (correctCount == questionCount) return S.resultPerfect;
+    if (score >= maxScore * 0.7) return S.resultGood;
+    if (score >= maxScore * 0.4) return S.resultOk;
+    return S.resultPoor;
   }
 
   @override
@@ -58,7 +59,7 @@ class QuizResult extends StatelessWidget {
             const SizedBox(height: 20),
 
             Text(
-              "$score / $maxScore puan",
+              S.scoreOf(score, maxScore),
               style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 34,
@@ -69,7 +70,7 @@ class QuizResult extends StatelessWidget {
             const SizedBox(height: 4),
 
             Text(
-              "$correctCount / $questionCount doğru",
+              S.correctOf(correctCount, questionCount),
               style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 15,
@@ -97,9 +98,9 @@ class QuizResult extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.warning),
                 ),
-                child: const Text(
-                  "Yeni rekor!",
-                  style: TextStyle(
+                child: Text(
+                  S.newRecord,
+                  style: const TextStyle(
                     color: AppColors.warning,
                     fontWeight: FontWeight.bold,
                   ),
@@ -112,9 +113,9 @@ class QuizResult extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _stat("En uzun seri", "$bestStreak"),
+                _stat(S.longestStreak, "$bestStreak"),
                 const SizedBox(width: 32),
-                _stat("Rekor", "$best"),
+                _stat(S.record, "$best"),
               ],
             ),
 
@@ -133,7 +134,7 @@ class QuizResult extends StatelessWidget {
                 ),
                 onPressed: onRestart,
                 icon: const Icon(Icons.refresh),
-                label: const Text("Tekrar oyna"),
+                label: Text(S.playAgain),
               ),
             ),
 
@@ -143,9 +144,9 @@ class QuizResult extends StatelessWidget {
               width: double.infinity,
               child: TextButton(
                 onPressed: onExit,
-                child: const Text(
-                  "Ana sayfaya dön",
-                  style: TextStyle(color: AppColors.textSecondary),
+                child: Text(
+                  S.backHome,
+                  style: const TextStyle(color: AppColors.textSecondary),
                 ),
               ),
             ),

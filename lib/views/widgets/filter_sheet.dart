@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:globeinfo/data/labels.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 
 class FilterSheet extends StatefulWidget {
@@ -83,8 +83,8 @@ class _FilterSheetState extends State<FilterSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Ülkeleri Filtrele",
+          Text(
+            S.filterTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -95,13 +95,13 @@ class _FilterSheetState extends State<FilterSheet> {
           const SizedBox(height: 20),
 
           // ENTRY TYPE
-          const Text("Giriş belgesi",
-              style: TextStyle(color: Colors.white)),
+          Text(S.filterEntryType,
+              style: const TextStyle(color: Colors.white)),
 
           Wrap(
             children: entryOptions.map((e) {
               return chip(
-                Labels.entry(e),
+                S.entryLabel(e),
                 entryType == e,
                 () {
                   setState(() {
@@ -116,13 +116,13 @@ class _FilterSheetState extends State<FilterSheet> {
           const SizedBox(height: 12),
 
           // VISA TYPE
-          const Text("Vize türü",
-              style: TextStyle(color: Colors.white)),
+          Text(S.filterVisaType,
+              style: const TextStyle(color: Colors.white)),
 
           Wrap(
             children: visaOptions.map((v) {
               return chip(
-                Labels.visa(v),
+                S.visaLabel(v),
                 visaType == v,
                 () {
                   setState(() {
@@ -141,14 +141,14 @@ class _FilterSheetState extends State<FilterSheet> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: clear,
-                  child: const Text("Temizle"),
+                  child: Text(S.clear),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: ElevatedButton(
                   onPressed: applyFilters,
-                  child: const Text("Uygula"),
+                  child: Text(S.apply),
                 ),
               ),
             ],

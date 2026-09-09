@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 
 /// Ana sayfanın üstündeki tanıtım kartı.
@@ -33,13 +34,13 @@ class HeroCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.explore, color: AppColors.accent, size: 20),
-                SizedBox(width: 10),
+                const Icon(Icons.explore, color: AppColors.accent, size: 20),
+                const SizedBox(width: 10),
                 Text(
-                  "Dünyayı Keşfet",
-                  style: TextStyle(
+                  S.heroTitle,
+                  style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -48,9 +49,12 @@ class HeroCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
-              "Ülkeler, bayraklar ve diller — güncel verilerle",
-              style: TextStyle(color: AppColors.textBody, fontSize: 13),
+            Text(
+              S.heroSubtitle,
+              style: const TextStyle(
+                color: AppColors.textBody,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 22),
             Row(
@@ -59,22 +63,22 @@ class HeroCard extends StatelessWidget {
                 _StatBox(
                   icon: Icons.public,
                   value: countryCount == 0 ? "—" : "$countryCount",
-                  label: "Ülke",
+                  label: S.statCountries,
                 ),
                 _StatBox(
                   icon: Icons.card_travel,
                   value: "$visaRuleCount",
-                  label: "Vize kaydı",
+                  label: S.statVisaRules,
                 ),
                 _StatBox(
                   icon: Icons.language,
                   value: languageCount == 0 ? "—" : "$languageCount",
-                  label: "Dil",
+                  label: S.statLanguages,
                 ),
                 _StatBox(
                   icon: Icons.flash_on,
-                  value: isLoading ? "..." : "GÜNCEL",
-                  label: "Veri",
+                  value: isLoading ? "..." : S.statDataLive,
+                  label: S.statData,
                 ),
               ],
             ),

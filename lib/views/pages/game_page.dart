@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/flag_quiz.dart';
 import 'package:globeinfo/theme/app_colors.dart';
@@ -169,9 +170,9 @@ class _FlagGamePageState extends State<FlagGamePage> {
       appBar: AppBar(
         backgroundColor: AppColors.headerStart,
         iconTheme: const IconThemeData(color: AppColors.textAppBar),
-        title: const Text(
-          "Bayrak Oyunu",
-          style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
+        title: Text(
+          S.gameTitle,
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 18),
         ),
         actions: [
           Padding(
@@ -241,9 +242,9 @@ class _FlagGamePageState extends State<FlagGamePage> {
           children: [
             const Icon(Icons.cloud_off, color: AppColors.textMuted, size: 40),
             const SizedBox(height: 12),
-            const Text(
-              "Oyun başlatılamadı",
-              style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+            Text(
+              S.gameStartFailed,
+              style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
             ),
             const SizedBox(height: 8),
             Text(
@@ -263,13 +264,9 @@ class _FlagGamePageState extends State<FlagGamePage> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.warning),
                 ),
-                child: const Text(
-                  "Demo API anahtarı yalnızca 1 ülke (Kanada) döndürüyor.\n"
-                  "Oyun için en az 4 ülke gerekiyor.\n\n"
-                  "restcountries.com/sign-up adresinden ücretsiz anahtar al, "
-                  "sonra uygulamayı şöyle başlat:\n\n"
-                  "flutter run --dart-define=RC_API_KEY=anahtarin",
-                  style: TextStyle(
+                child: Text(
+                  S.gameDemoWarning,
+                  style: const TextStyle(
                     color: AppColors.warning,
                     fontSize: 12,
                     height: 1.5,
@@ -281,7 +278,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
             ElevatedButton.icon(
               onPressed: _load,
               icon: const Icon(Icons.refresh),
-              label: const Text("Tekrar dene"),
+              label: Text(S.tryAgain),
             ),
           ],
         ),
@@ -303,7 +300,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                 Row(
                   children: [
                     Text(
-                      "Soru ${_index + 1} / ${FlagQuiz.questionCount}",
+                      S.questionOf(_index + 1, FlagQuiz.questionCount),
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 13,
@@ -327,7 +324,7 @@ class _FlagGamePageState extends State<FlagGamePage> {
                       const SizedBox(width: 12),
                     ],
                     Text(
-                      "$_score puan",
+                      "$_score ${S.points}",
                       style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 13,
@@ -364,9 +361,12 @@ class _FlagGamePageState extends State<FlagGamePage> {
 
           const SizedBox(height: 20),
 
-          const Text(
-            "Bu bayrak hangi ülkeye ait?",
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          Text(
+            S.whichCountry,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+            ),
           ),
 
           const Spacer(),

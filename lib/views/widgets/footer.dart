@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/views/pages/saved_pages.dart';
 
@@ -85,8 +86,8 @@ class HomeFooter extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _item(context, Icons.home, "Ana sayfa", 0, () => _goHome(context)),
-              _item(context, Icons.star, "Kaydedilenler", 1, () => _goSaved(context)),
+              _item(context, Icons.home, S.navHome, 0, () => _goHome(context)),
+              _item(context, Icons.star, S.navSaved, 1, () => _goSaved(context)),
             ],
           ),
         ),

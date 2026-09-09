@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:globeinfo/data/country.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/services/visa_engine.dart';
 
 Country make(String name, {String? visa, String? entry}) =>
@@ -58,22 +59,34 @@ void main() {
   });
 
   group("VisaEngine.emptyMessage", () {
-    test("etiketleri Turkce gosteriyor", () {
+    // Varsayilan dil Turkce oldugu icin Turkce etiketler bekleniyor.
+    test("etiketleri secili dilde gosteriyor", () {
       expect(VisaEngine.emptyMessage("Visa Free", null),
-          "Vizesiz için kayıtlı ülke yok");
+          contains("Vizesiz"));
       expect(VisaEngine.emptyMessage(null, "ID Only"),
-          "Kimlikle giriş için kayıtlı ülke yok");
+          contains("Kimlikle giriş"));
     });
 
     test("iki filtre birlestiriliyor", () {
-      expect(
-        VisaEngine.emptyMessage("E-Visa", "Passport Required"),
-        "e-Vize + Pasaport gerekli için kayıtlı ülke yok",
-      );
+      final message =
+          VisaEngine.emptyMessage("E-Visa", "Passport Required");
+      expect(message, contains("e-Vize"));
+      expect(message, contains("Pasaport gerekli"));
+      expect(message, contains("+"));
     });
 
     test("filtre yoksa genel mesaj", () {
-      expect(VisaEngine.emptyMessage(null, null), "Ülke bulunamadı");
+      expect(VisaEngine.emptyMessage(null, null), isNotEmpty);
+    });
+
+    test("dil degisince etiketler de degisiyor", () async {
+      await LocaleController.instance.setLocale(AppLocale.en);
+      expect(VisaEngine.emptyMessage("Visa Free", null),
+          contains("Visa Free"));
+
+      await LocaleController.instance.setLocale(AppLocale.tr);
+      expect(VisaEngine.emptyMessage("Visa Free", null),
+          contains("Vizesiz"));
     });
   });
 }

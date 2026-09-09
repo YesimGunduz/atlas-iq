@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 
 /// Vize filtresine giriş kartı.
@@ -24,21 +25,21 @@ class TravelModeCard extends StatelessWidget {
           children: [
             const Icon(Icons.public, color: Colors.black),
             const SizedBox(width: 14),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Seyahat Modu",
-                    style: TextStyle(
+                    S.travelTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    "Vize, pasaport ve kimlik kurallarına bak",
-                    style: TextStyle(color: Colors.white, fontSize: 12),
+                    S.travelSubtitle,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ],
               ),
@@ -52,9 +53,9 @@ class TravelModeCard extends StatelessWidget {
                   color: AppColors.accentDeep,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  "Kuralları gör",
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  S.travelAction,
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ),

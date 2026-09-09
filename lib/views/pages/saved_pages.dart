@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:globeinfo/data/saved_data.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/views/pages/details_page.dart';
 import 'package:globeinfo/views/widgets/footer.dart';
@@ -22,9 +23,9 @@ class SavedPage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: AppColors.textAppBar),
-        title: const Text(
-          "Kaydedilenler",
-          style: TextStyle(
+        title: Text(
+          S.savedTitle,
+          style: const TextStyle(
             color: AppColors.textAppBar,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -52,7 +53,7 @@ class SavedPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "${saved.length} ülke kayıtlı",
+                  S.savedCount(saved.length),
                   style: const TextStyle(
                     color: AppColors.textAppBar,
                     fontSize: 13,
@@ -84,20 +85,19 @@ class _EmptyState extends StatelessWidget {
             const Icon(Icons.star_border,
                 color: AppColors.textLabel, size: 48),
             const SizedBox(height: 16),
-            const Text(
-              "Henüz kayıtlı ülke yok",
-              style: TextStyle(
+            Text(
+              S.savedEmptyTitle,
+              style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              "Bir ülkenin sayfasını açıp sağ üstteki yıldıza "
-              "dokunarak buraya ekleyebilirsin.",
+            Text(
+              S.savedEmptyDetail,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 14,
                 height: 1.5,
@@ -108,7 +108,7 @@ class _EmptyState extends StatelessWidget {
               onPressed: () =>
                   Navigator.popUntil(context, (route) => route.isFirst),
               icon: const Icon(Icons.search),
-              label: const Text("Ülke ara"),
+              label: Text(S.savedEmptyAction),
             ),
           ],
         ),
@@ -167,7 +167,7 @@ class _SavedTile extends StatelessWidget {
                   width: 55,
                   height: 38,
                   fit: BoxFit.cover,
-                  semanticLabel: "${country.name} bayrağı",
+                  semanticLabel: S.flagAlt(country.name, ""),
                   errorBuilder: (_, __, ___) => Container(
                     width: 55,
                     height: 38,

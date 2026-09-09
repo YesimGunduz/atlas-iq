@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:globeinfo/data/country.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 
 /// assets/data/countries_database.json içindeki vize kurallarını yükler.
 ///
@@ -20,9 +21,24 @@ class VisaDatabase {
 
   static final Map<String, Map<String, dynamic>> _byCountry = {};
 
-  static String passport = "";
+  static String _passportTr = "";
+  static String _passportEn = "";
+  static String _disclaimerTr = "";
+  static String _disclaimerEn = "";
+
   static String updated = "";
-  static String disclaimer = "";
+
+  /// Seçili dile göre. İngilizce karşılık yoksa Türkçesine düşer.
+  static String get passport =>
+      LocaleController.instance.locale == AppLocale.en && _passportEn.isNotEmpty
+          ? _passportEn
+          : _passportTr;
+
+  static String get disclaimer =>
+      LocaleController.instance.locale == AppLocale.en &&
+              _disclaimerEn.isNotEmpty
+          ? _disclaimerEn
+          : _disclaimerTr;
 
   static bool get isLoaded => _byCountry.isNotEmpty;
   static int get recordCount => _byCountry.length;
@@ -36,9 +52,11 @@ class VisaDatabase {
     List<dynamic> list;
 
     if (decoded is Map) {
-      passport = (decoded["passport"] ?? "").toString();
+      _passportTr = (decoded["passport"] ?? "").toString();
+      _passportEn = (decoded["passport_en"] ?? "").toString();
+      _disclaimerTr = (decoded["disclaimer"] ?? "").toString();
+      _disclaimerEn = (decoded["disclaimer_en"] ?? "").toString();
       updated = (decoded["updated"] ?? "").toString();
-      disclaimer = (decoded["disclaimer"] ?? "").toString();
       list = decoded["countries"] is List ? decoded["countries"] as List : [];
     } else if (decoded is List) {
       list = decoded;

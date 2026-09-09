@@ -261,11 +261,6 @@ class Country {
 
   String get languagesText => languages.isEmpty ? "-" : languages.join(", ");
 
-  /// Ekran okuyucuya verilecek bayrak açıklaması.
-  /// API'den açıklama gelmediyse en azından ülke adını söylüyoruz.
-  String get flagAltText =>
-      flagDescription.isEmpty ? "$name bayrağı" : "$name bayrağı: $flagDescription";
-
   String get timezonesText => timezones.isEmpty ? "-" : timezones.join(", ");
 
   String get currencyText {

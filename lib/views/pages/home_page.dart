@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/data/country_names_tr.dart';
-import 'package:globeinfo/data/labels.dart';
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
 import 'package:globeinfo/services/visa_engine.dart';
@@ -42,13 +42,6 @@ class _HomePageState extends State<HomePage> {
   String? _visaFilter;
   String? _entryFilter;
 
-  final List<String> _hints = [
-    "Ülke ya da bayrak ara...",
-    "Ülkeleri anlık olarak keşfet",
-    "İstediğin ülkeyi hemen bul",
-    "Güncel ülke bilgileri",
-  ];
-
   int _hintIndex = 0;
   Timer? _hintTimer;
 
@@ -60,7 +53,7 @@ class _HomePageState extends State<HomePage> {
 
     _hintTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;
-      setState(() => _hintIndex = (_hintIndex + 1) % _hints.length);
+      setState(() => _hintIndex = (_hintIndex + 1) % S.searchHints.length);
     });
 
     _searchCtrl.addListener(_onQueryChanged);
@@ -170,7 +163,7 @@ class _HomePageState extends State<HomePage> {
             duration: const Duration(seconds: 2),
             backgroundColor: AppColors.surface,
             content: Text(
-              "\"$query\" ile eşleşen ülke yok",
+              S.noSearchMatch(query),
               style: const TextStyle(color: AppColors.textPrimary),
             ),
           ),
@@ -253,18 +246,18 @@ class _HomePageState extends State<HomePage> {
               children: [
                 if (_visaFilter != null)
                   _filterChip(
-                      Labels.visa(_visaFilter), AppColors.visa(_visaFilter)),
+                      S.visaLabel(_visaFilter), AppColors.visa(_visaFilter)),
                 if (_entryFilter != null)
                   _filterChip(
-                      Labels.entry(_entryFilter), AppColors.accentLight),
+                      S.entryLabel(_entryFilter), AppColors.accentLight),
               ],
             ),
           ),
           TextButton(
             onPressed: _clearFilters,
-            child: const Text(
-              "Temizle",
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Text(
+              S.clear,
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -324,22 +317,21 @@ class _HomePageState extends State<HomePage> {
     IconData icon;
 
     if (allCountries.isEmpty) {
-      // Hiç veri yüklenmemiş
       icon = Icons.cloud_off;
-      title = "Ülke listesi boş";
-      detail = "Veri yüklenemedi. Aşağıdan tekrar deneyebilirsin.";
+      title = S.emptyListTitle;
+      detail = S.emptyListDetail;
     } else if (query.isNotEmpty && hasFilter) {
       icon = Icons.search_off;
-      title = "\"$query\" bu filtrelerle bulunamadı";
-      detail = "Filtreyi temizleyip tekrar dene.";
+      title = S.emptyFilteredSearch(query);
+      detail = S.clearFilter;
     } else if (query.isNotEmpty) {
       icon = Icons.search_off;
-      title = "\"$query\" ile eşleşen ülke yok";
-      detail = "Türkçe adıyla da arayabilirsin (almanya, abd, ingiltere).";
+      title = S.emptySearchTitle(query);
+      detail = S.emptySearchDetail;
     } else {
       icon = Icons.filter_alt_off;
       title = VisaEngine.emptyMessage(_visaFilter, _entryFilter);
-      detail = "${allCountries.length} ülke yüklü, filtreye uyan yok.";
+      detail = S.emptyFilterDetail(allCountries.length);
     }
 
     return Center(
@@ -374,19 +366,19 @@ class _HomePageState extends State<HomePage> {
               ElevatedButton.icon(
                 onPressed: loadCountries,
                 icon: const Icon(Icons.refresh),
-                label: const Text("Tekrar dene"),
+                label: Text(S.tryAgain),
               )
             else if (hasFilter)
               TextButton.icon(
                 onPressed: _clearFilters,
                 icon: const Icon(Icons.filter_alt_off),
-                label: const Text("Filtreyi temizle"),
+                label: Text(S.clearFilter),
               )
             else if (query.isNotEmpty)
               TextButton.icon(
                 onPressed: _searchCtrl.clear,
                 icon: const Icon(Icons.close),
-                label: const Text("Aramayı temizle"),
+                label: Text(S.clearSearch),
               ),
           ],
         ),
@@ -402,9 +394,9 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 20),
           const Icon(Icons.cloud_off, color: AppColors.textMuted, size: 40),
           const SizedBox(height: 12),
-          const Text(
-            "Veriler alınamadı",
-            style: TextStyle(
+          Text(
+            S.loadFailed,
+            style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -414,7 +406,7 @@ class _HomePageState extends State<HomePage> {
           ElevatedButton.icon(
             onPressed: loadCountries,
             icon: const Icon(Icons.refresh),
-            label: const Text("Tekrar dene"),
+            label: Text(S.tryAgain),
           ),
           if (CountryService.isUsingDemoKey)
             Container(
@@ -426,12 +418,9 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.warning),
               ),
-              child: const Text(
-                "Şu an demo API anahtarı kullanılıyor.\n"
-                "restcountries.com'dan ücretsiz anahtar alıp uygulamayı "
-                "şöyle başlat:\n\n"
-                "flutter run --dart-define=RC_API_KEY=anahtarin",
-                style: TextStyle(
+              child: Text(
+                S.demoKeyWarning,
+                style: const TextStyle(
                   color: AppColors.warning,
                   fontSize: 12,
                   height: 1.5,
@@ -482,7 +471,7 @@ class _HomePageState extends State<HomePage> {
             CountrySearchField(
               controller: _searchCtrl,
               focusNode: _focusNode,
-              hint: _isActive ? "" : _hints[_hintIndex],
+              hint: _isActive ? "" : S.searchHints[_hintIndex],
               onSubmit: _onSearchSubmitted,
             ),
             TravelModeCard(onTap: openFilter),

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:globeinfo/i18n/locale_controller.dart';
 import 'package:globeinfo/data/country.dart';
 
 /// Oyunu kurmaya yetecek kadar ülke yoksa atılır.
@@ -21,10 +22,11 @@ class NotEnoughCountriesException implements Exception {
 enum QuizLevel { easy, medium, hard }
 
 extension QuizLevelInfo on QuizLevel {
+  /// Kullanıcıya görünen ad; seçili dile göre değişiyor.
   String get label => switch (this) {
-        QuizLevel.easy => "Kolay",
-        QuizLevel.medium => "Orta",
-        QuizLevel.hard => "Zor",
+        QuizLevel.easy => S.levelEasy,
+        QuizLevel.medium => S.levelMedium,
+        QuizLevel.hard => S.levelHard,
       };
 
   int get points => switch (this) {

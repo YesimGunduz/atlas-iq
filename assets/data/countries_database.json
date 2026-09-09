@@ -787,5 +787,7 @@
       "visa": "Visa Required",
       "entry": "Passport Required"
     }
-  ]
+  ],
+  "passport_en": "Republic of Türkiye passport",
+  "disclaimer_en": "This information is indicative only and can change. Verify with the relevant country's consulate or the Turkish Ministry of Foreign Affairs before travelling."
 }

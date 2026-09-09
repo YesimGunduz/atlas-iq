@@ -30,6 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Material bilesenlerinin (geri dugmesi ipucu, tarih secici vb.) Turkce
+  # olmasi icin. SDK'dan geliyor, indirme gerektirmiyor.
+  flutter_localizations:
+    sdk: flutter
   http: ^1.6.0
 
   # Kaydedilen ülkeleri diske yazmak için
