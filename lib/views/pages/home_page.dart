@@ -6,6 +6,7 @@ import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
 import 'package:globeinfo/services/visa_engine.dart';
 import 'package:globeinfo/views/pages/details_page.dart';
+import 'package:globeinfo/views/pages/game_page.dart';
 import 'package:globeinfo/views/widgets/filter_sheet.dart';
 import 'package:globeinfo/views/widgets/footer.dart';
 import 'package:globeinfo/views/widgets/header.dart';
@@ -206,6 +207,13 @@ class _HomePageState extends State<HomePage> {
           query: CountryNamesTr.resolve(query),
         ),
       ),
+    );
+  }
+
+  void _openGame() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const FlagGamePage()),
     );
   }
 
@@ -754,7 +762,7 @@ class _HomePageState extends State<HomePage> {
         bottom: false,
         child: Column(
           children: [
-            const HomeHeader(),
+            HomeHeader(onPlay: _openGame),
             const SizedBox(height: 16),
             _buildHeroCard(),
             const SizedBox(height: 16),

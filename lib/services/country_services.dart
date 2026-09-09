@@ -36,7 +36,7 @@ class CountryService {
 
   /// v5'te istediğimiz alanlar (nokta yollu).
   static const String _responseFields =
-      "names.common,capitals,flag.url_png,region,population,currencies,timezones,languages,codes.alpha_2";
+      "names.common,capitals,flag.url_png,flag.colors.dominant,region,population,currencies,timezones,languages,codes.alpha_2";
 
   static const Duration _timeout = Duration(seconds: 20);
 
@@ -255,6 +255,7 @@ class CountryService {
       "capital": _readCapital(raw),
       "flag": _readFlag(raw),
       "region": (raw["region"] ?? "").toString(),
+      "flagColor": _readFlagColor(raw),
       "population": raw["population"] is num ? raw["population"] as num : null,
       "currencyCode": currency?.$1 ?? "",
       "currencyName": currency?.$2 ?? "",
@@ -292,6 +293,18 @@ class CountryService {
     final code = _readAlpha2(raw);
     if (code.isNotEmpty) {
       return "https://flagcdn.com/w320/${code.toLowerCase()}.png";
+    }
+    return "";
+  }
+
+  /// flag.colors.dominant -> "#RRGGBB". Yoksa boş string.
+  static String _readFlagColor(Map<String, dynamic> raw) {
+    final flag = raw["flag"];
+    if (flag is Map) {
+      final colors = flag["colors"];
+      if (colors is Map && colors["dominant"] != null) {
+        return colors["dominant"].toString();
+      }
     }
     return "";
   }
