@@ -27,13 +27,13 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _boot() async {
     final started = DateTime.now();
 
-    try {
-      await SavedData.load();
-      await VisaDatabase.load();
-      await CountryService.getAllCountries();
-    } catch (_) {
-      // Hata olursa ana sayfa "Tekrar dene" ekranını gösterecek.
-    }
+    // Veri yüklemesi bu süreyi aşarsa splash'te bekletmiyoruz; ana sayfaya
+    // geçiyoruz, yükleme orada göstergesiyle birlikte devam ediyor.
+    // (Aksi hâlde yavaş ağda kullanıcı dakikalarca splash'te kalabiliyordu.)
+    await Future.any([
+      _loadEverything(),
+      Future.delayed(const Duration(seconds: 5)),
+    ]);
 
     final elapsed = DateTime.now().difference(started);
     final remaining = _minDuration - elapsed;
@@ -47,6 +47,16 @@ class _SplashScreenState extends State<SplashScreen> {
       context,
       MaterialPageRoute(builder: (_) => const HomePage()),
     );
+  }
+
+  Future<void> _loadEverything() async {
+    try {
+      await SavedData.load();
+      await VisaDatabase.load();
+      await CountryService.getAllCountries();
+    } catch (_) {
+      // Hata olursa ana sayfa "Tekrar dene" ekranını gösterecek.
+    }
   }
 
   @override

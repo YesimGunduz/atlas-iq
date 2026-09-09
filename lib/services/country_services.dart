@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:globeinfo/services/country_cache.dart';
 import 'package:http/http.dart' as http;
 
 /// REST Countries **v5** istemcisi.
@@ -33,6 +34,12 @@ class CountryService {
 
   /// API'nin bildirdiği toplam ülke sayısı (data.meta.total).
   static int? reportedTotal;
+
+  /// Elimizdeki liste diskteki önbellekten mi geldi?
+  static bool loadedFromCache = false;
+
+  /// Verinin indirildiği tarih (önbellekten geldiyse o tarih).
+  static DateTime? dataDate;
 
   /// v5'te istediğimiz alanlar (nokta yollu).
   static const String _responseFields =
@@ -159,13 +166,68 @@ class CountryService {
   }
 
   // ===============================================================
-  // TÜM ÜLKELER (sayfalı)
+  // TÜM ÜLKELER
   // ===============================================================
+  /// Sıra: bellek -> disk -> ağ.
+  ///
+  /// Diskte liste varsa ağ hiç beklenmez; uygulama anında açılır ve
+  /// internet yokken de çalışır. Tazeleme [refreshIfStale] ile arka planda.
   static Future<List<Map<String, dynamic>>> getAllCountries({
     bool forceRefresh = false,
   }) async {
     if (!forceRefresh && _cache != null) return _cache!;
 
+    // 1) Disk
+    if (!forceRefresh) {
+      final cached = await CountryCache.read();
+      if (cached != null && cached.isNotEmpty) {
+        _cache = cached;
+        loadedFromCache = true;
+        dataDate = await CountryCache.savedAt();
+        return cached;
+      }
+    }
+
+    // 2) Ağ
+    final fresh = await _downloadAll();
+
+    _cache = fresh;
+    loadedFromCache = false;
+    dataDate = DateTime.now();
+
+    await CountryCache.write(fresh);
+    return fresh;
+  }
+
+  /// Önbellekten açıldıysa ve veri bayatsa sessizce tazeler.
+  /// Liste gerçekten değiştiyse true döner.
+  static Future<bool> refreshIfStale() async {
+    if (!loadedFromCache) return false;
+    if (!await CountryCache.isStale()) return false;
+
+    try {
+      final fresh = await _downloadAll();
+      final changed = fresh.length != (_cache?.length ?? 0);
+
+      _cache = fresh;
+      loadedFromCache = false;
+      dataDate = DateTime.now();
+
+      await CountryCache.write(fresh);
+      return changed;
+    } catch (e) {
+      // Tazeleme başarısızsa elimizdeki önbellekle devam ediyoruz.
+      debugPrint("refreshIfStale ERROR: $e");
+      return false;
+    }
+  }
+
+  /// Sayfa sayfa indirir.
+  ///
+  /// Bir sayfa hata verirse elde olanla devam eder; sadece hiç kayıt
+  /// gelmediyse hata fırlatır. 3. sayfa düştü diye ilk 200 ülkeyi
+  /// çöpe atmıyoruz.
+  static Future<List<Map<String, dynamic>>> _downloadAll() async {
     demoResponseDetected = false;
     reportedTotal = null;
 
@@ -173,11 +235,19 @@ class CountryService {
     var offset = 0;
     const pageSize = 100; // ücretsiz planın üst sınırı
 
-    // 249 ülke var; en fazla 5 sayfa çekiyoruz.
+    Object? lastError;
+
     for (var i = 0; i < 5; i++) {
-      final page = await _fetchPage(
-        "?limit=$pageSize&offset=$offset&response_fields=$_responseFields",
-      );
+      _Page page;
+
+      try {
+        page = await _fetchPage(
+          "?limit=$pageSize&offset=$offset&response_fields=$_responseFields",
+        );
+      } catch (e) {
+        lastError = e;
+        break; // elde olanı koru
+      }
 
       all.addAll(page.items);
 
@@ -186,10 +256,12 @@ class CountryService {
     }
 
     if (all.isEmpty) {
-      throw const CountryServiceException("API boş ülke listesi döndürdü");
+      if (lastError is CountryServiceException) throw lastError;
+      throw CountryServiceException(
+        lastError?.toString() ?? "API boş ülke listesi döndürdü",
+      );
     }
 
-    // Aynı ülke iki kez gelmesin
     final seen = <String>{};
     final unique = <Map<String, dynamic>>[];
     for (final c in all) {
@@ -201,7 +273,6 @@ class CountryService {
       (a, b) => (a["name"] as String).compareTo(b["name"] as String),
     );
 
-    _cache = unique;
     return unique;
   }
 
@@ -426,7 +497,12 @@ class CountryService {
     return capital.isEmpty ? "-" : capital;
   }
 
-  static void clearCache() => _cache = null;
+  static Future<void> clearCache() async {
+    _cache = null;
+    loadedFromCache = false;
+    dataDate = null;
+    await CountryCache.clear();
+  }
 
   static String _snippet(String body) {
     final clean = body.replaceAll(RegExp(r'\s+'), ' ').trim();

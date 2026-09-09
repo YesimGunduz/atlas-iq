@@ -132,6 +132,9 @@ class _HomePageState extends State<HomePage> {
       });
 
       _applyFilters();
+
+      // Önbellekten açıldıysa veriyi arka planda tazele.
+      _refreshInBackground();
     } catch (e) {
       if (!mounted) return;
 
@@ -139,6 +142,24 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
         errorMessage = "$e";
       });
+    }
+  }
+
+  /// Önbellekten gelen liste bayatsa sessizce yeniler.
+  /// Kullanıcı bu sırada uygulamayı kullanmaya devam edebiliyor.
+  Future<void> _refreshInBackground() async {
+    final changed = await CountryService.refreshIfStale();
+    if (!changed || !mounted) return;
+
+    try {
+      final data = await CountryService.getAllCountries();
+      VisaDatabase.attachTo(data, CountryService.countryName);
+
+      if (!mounted) return;
+      setState(() => allCountries = data);
+      _applyFilters();
+    } catch (_) {
+      // Tazeleme başarısızsa eldeki listeyle devam.
     }
   }
 
@@ -503,6 +524,17 @@ class _HomePageState extends State<HomePage> {
   // ---------------- VERİ EKSİK UYARISI ----------------
   /// Demo anahtarı örnek veri döndürüyorsa ya da API'nin bildirdiği toplam
   /// sayıdan az ülke geldiyse kullanıcıya sebebini söyle.
+  /// "· 3 saat önce" gibi bir ek. Tarih bilinmiyorsa boş string.
+  String _cacheAgeText() {
+    final date = CountryService.dataDate;
+    if (date == null) return "";
+
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) return " · ${diff.inMinutes} dk önce";
+    if (diff.inHours < 24) return " · ${diff.inHours} saat önce";
+    return " · ${diff.inDays} gün önce";
+  }
+
   Widget _buildDataNotice() {
     if (isLoading || errorMessage != null || allCountries.isEmpty) {
       return const SizedBox.shrink();
@@ -510,9 +542,33 @@ class _HomePageState extends State<HomePage> {
 
     final total = CountryService.reportedTotal;
     final incomplete = total != null && allCountries.length < total;
+    final fromCache = CountryService.loadedFromCache;
 
-    if (!CountryService.demoResponseDetected && !incomplete) {
+    if (!CountryService.demoResponseDetected && !incomplete && !fromCache) {
       return const SizedBox.shrink();
+    }
+
+    // Çevrimdışı önbellekten açıldıysa sadece bilgi ver, uyarı görünümü verme.
+    if (fromCache && !CountryService.demoResponseDetected && !incomplete) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        child: Row(
+          children: [
+            const Icon(Icons.offline_bolt_outlined,
+                color: Color(0xFF7A9CC4), size: 14),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                "Kayıtlı veriden açıldı${_cacheAgeText()} · arka planda güncelleniyor",
+                style: const TextStyle(
+                  color: Color(0xFF7A9CC4),
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     final countText = total != null
@@ -553,8 +609,8 @@ class _HomePageState extends State<HomePage> {
                             "Tam liste için restcountries.com'dan ücretsiz "
                             "anahtar al ve uygulamayı şöyle başlat:\n"
                             "flutter run --dart-define=RC_API_KEY=anahtarin"
-                        : "API tam listeyi döndürmedi. Tekrar denemek için "
-                            "aşağı çekip bırak.",
+                        : "API tam listeyi döndürmedi. Yenilemek için "
+                            "uygulamayı yeniden başlatabilirsin.",
                     style: const TextStyle(
                       color: Color(0xFFD6A45A),
                       fontSize: 11,
