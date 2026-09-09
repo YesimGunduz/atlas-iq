@@ -65,7 +65,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
       // Ekranı HEMEN çiz; kur gibi yavaş olabilecek şeyleri bekletme.
       setState(() {
         country = data;
-        isSaved = SavedData.contains(data.name);
+        isSaved = SavedData.instance.contains(data.name);
         timeDifference = _timeDifferenceText(data);
         isLoading = false;
       });
@@ -134,7 +134,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
     setState(() => isSaved = willSave);
 
     if (willSave) {
-      await SavedData.add(
+      await SavedData.instance.add(
         SavedCountry(
           name: data.name,
           capital: data.capital,
@@ -143,7 +143,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
         ),
       );
     } else {
-      await SavedData.remove(data.name);
+      await SavedData.instance.remove(data.name);
     }
 
     messenger
@@ -452,7 +452,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               c.flag,
               height: 120,
               fit: BoxFit.contain,
-              semanticLabel: "${c.name} bayrağı",
+              semanticLabel: c.flagAltText,
               errorBuilder: (_, __, ___) => const Icon(
                 Icons.flag,
                 size: 60,
@@ -470,6 +470,20 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          if (c.flagDescription.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              c.flagDescription,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textLabel,
+                fontSize: 12.5,
+                height: 1.45,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+
           const SizedBox(height: 20),
 
           // 1) Sayfanın asıl sorusu en üstte

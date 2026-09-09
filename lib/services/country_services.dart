@@ -32,8 +32,9 @@ class CountryService {
 
   /// v5'ten istediğimiz alanlar (nokta yollu).
   static const String _responseFields =
-      "names.common,capitals,flag.url_png,flag.colors.dominant,region,"
-      "population,currencies,timezones,languages,codes.alpha_2";
+      "names.common,capitals,flag.url_png,flag.colors.dominant,"
+      "flag.description,region,population,currencies,timezones,languages,"
+      "codes.alpha_2";
 
   static const Duration _timeout = Duration(seconds: 20);
 

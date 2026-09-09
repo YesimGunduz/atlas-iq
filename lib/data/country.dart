@@ -11,6 +11,11 @@ class Country {
   /// Bayrağın baskın rengi, "#RRGGBB". Oyunda benzer bayrakları eşlemek için.
   final String flagColor;
 
+  /// Bayrağın sade dille anlatımı (renkler, düzen, semboller).
+  /// API dokümanı bunu birebir "alt metin olarak kullanılabilir" diye
+  /// tarif ediyor; ekran okuyucular için kullanıyoruz.
+  final String flagDescription;
+
   final String region;
   final String alpha2;
 
@@ -31,6 +36,7 @@ class Country {
     this.capital = "-",
     this.flag = "",
     this.flagColor = "",
+    this.flagDescription = "",
     this.region = "",
     this.alpha2 = "",
     this.currencyCode = "",
@@ -66,6 +72,7 @@ class Country {
       capital: _readCapital(raw),
       flag: _readFlag(raw),
       flagColor: _readFlagColor(raw),
+      flagDescription: _readFlagDescription(raw),
       region: (raw["region"] ?? "").toString(),
       alpha2: _readAlpha2(raw),
       currencyCode: currency?.code ?? "",
@@ -116,6 +123,14 @@ class Country {
       if (colors is Map && colors["dominant"] != null) {
         return colors["dominant"].toString();
       }
+    }
+    return "";
+  }
+
+  static String _readFlagDescription(Map<String, dynamic> raw) {
+    final flag = raw["flag"];
+    if (flag is Map && flag["description"] != null) {
+      return flag["description"].toString();
     }
     return "";
   }
@@ -196,6 +211,7 @@ class Country {
         "capital": capital,
         "flag": flag,
         "flagColor": flagColor,
+        "flagDescription": flagDescription,
         "region": region,
         "alpha2": alpha2,
         "currencyCode": currencyCode,
@@ -210,6 +226,7 @@ class Country {
         capital: (json["capital"] ?? "-").toString(),
         flag: (json["flag"] ?? "").toString(),
         flagColor: (json["flagColor"] ?? "").toString(),
+        flagDescription: (json["flagDescription"] ?? "").toString(),
         region: (json["region"] ?? "").toString(),
         alpha2: (json["alpha2"] ?? "").toString(),
         currencyCode: (json["currencyCode"] ?? "").toString(),
@@ -243,6 +260,11 @@ class Country {
   }
 
   String get languagesText => languages.isEmpty ? "-" : languages.join(", ");
+
+  /// Ekran okuyucuya verilecek bayrak açıklaması.
+  /// API'den açıklama gelmediyse en azından ülke adını söylüyoruz.
+  String get flagAltText =>
+      flagDescription.isEmpty ? "$name bayrağı" : "$name bayrağı: $flagDescription";
 
   String get timezonesText => timezones.isEmpty ? "-" : timezones.join(", ");
 

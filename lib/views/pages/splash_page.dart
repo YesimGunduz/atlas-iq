@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _loadEverything() async {
     try {
-      await SavedData.load();
+      await SavedData.instance.load();
       await VisaDatabase.load();
       await CountryService.getAllCountries();
     } catch (_) {
@@ -73,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           // BACKGROUND
           Image.asset(
-            "assets/images/splashatlas.png",
+            "assets/images/splashatlas.webp",
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) =>
                 Container(color: AppColors.background),

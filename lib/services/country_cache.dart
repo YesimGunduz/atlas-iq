@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// - Uygulama açılışta ağ beklemeden dolu bir ekranla başlasın
 /// - İnternet yokken ya da API çökmüşken uygulama kullanılabilir kalsın
 class CountryCache {
-  static const String _dataKey = "countries_cache_v2";
+  static const String _dataKey = "countries_cache_v3";
   static const String _timeKey = "countries_cache_saved_at";
 
   /// Bu süreden eski önbellek "bayat" sayılır; gösterilir ama arka planda

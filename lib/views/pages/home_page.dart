@@ -1,60 +1,29 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/data/country.dart';
 import 'package:globeinfo/data/country_names_tr.dart';
 import 'package:globeinfo/data/labels.dart';
 import 'package:globeinfo/services/country_services.dart';
 import 'package:globeinfo/services/visa_dataservice.dart';
 import 'package:globeinfo/services/visa_engine.dart';
+import 'package:globeinfo/theme/app_colors.dart';
 import 'package:globeinfo/views/pages/details_page.dart';
 import 'package:globeinfo/views/pages/game_page.dart';
+import 'package:globeinfo/views/widgets/country_card.dart';
+import 'package:globeinfo/views/widgets/country_search_field.dart';
+import 'package:globeinfo/views/widgets/data_notice.dart';
 import 'package:globeinfo/views/widgets/filter_sheet.dart';
 import 'package:globeinfo/views/widgets/footer.dart';
 import 'package:globeinfo/views/widgets/header.dart';
+import 'package:globeinfo/views/widgets/hero_card.dart';
+import 'package:globeinfo/views/widgets/travel_mode_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
-}
-
-// ---------------- STAT BOX ----------------
-class _StatBox extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-
-  const _StatBox({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.white, size: 18),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-        ),
-      ],
-    );
-  }
 }
 
 class _HomePageState extends State<HomePage> {
@@ -81,7 +50,6 @@ class _HomePageState extends State<HomePage> {
   ];
 
   int _hintIndex = 0;
-  String _currentHint = "";
   Timer? _hintTimer;
 
   bool _isActive = false;
@@ -90,14 +58,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _currentHint = _hints[_hintIndex];
-
-    _hintTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+    _hintTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;
-      setState(() {
-        _hintIndex = (_hintIndex + 1) % _hints.length;
-        _currentHint = _hints[_hintIndex];
-      });
+      setState(() => _hintIndex = (_hintIndex + 1) % _hints.length);
     });
 
     _searchCtrl.addListener(_onQueryChanged);
@@ -114,7 +77,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  // ---------------- LOAD ----------------
+  // ---------------- YÜKLEME ----------------
   Future<void> loadCountries() async {
     setState(() {
       isLoading = true;
@@ -135,12 +98,9 @@ class _HomePageState extends State<HomePage> {
       });
 
       _applyFilters();
-
-      // Önbellekten açıldıysa veriyi arka planda tazele.
       _refreshInBackground();
     } catch (e) {
       if (!mounted) return;
-
       setState(() {
         isLoading = false;
         errorMessage = "$e";
@@ -149,7 +109,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Önbellekten gelen liste bayatsa sessizce yeniler.
-  /// Kullanıcı bu sırada uygulamayı kullanmaya devam edebiliyor.
   Future<void> _refreshInBackground() async {
     final changed = await CountryService.refreshIfStale();
     if (!changed || !mounted) return;
@@ -166,17 +125,15 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // ---------------- SEARCH + FILTER ----------------
+  // ---------------- ARAMA VE FİLTRE ----------------
   void _onQueryChanged() {
-    // Önceden burada bir setState, hemen ardından _applyFilters içinde bir
-    // tane daha vardı; her harfte arayüz iki kez kuruluyordu.
-    // _isActive'i önce güncelleyip tek setState'e bırakıyoruz.
+    // _isActive'i setState dışında güncelleyip tek yeniden çizime bırakıyoruz.
     _isActive = _searchCtrl.text.isNotEmpty || _focusNode.hasFocus;
     _applyFilters();
   }
 
   void _applyFilters() {
-    final query = _searchCtrl.text.trim().toLowerCase();
+    final query = _searchCtrl.text.trim();
 
     var result = VisaEngine.filterCountries(
       allCountries,
@@ -197,7 +154,6 @@ class _HomePageState extends State<HomePage> {
   void _onSearchSubmitted() {
     final query = _searchCtrl.text.trim();
 
-    // Eşleşme varsa ilkini aç.
     if (countries.isNotEmpty) {
       _openCountry(countries.first);
       return;
@@ -215,14 +171,14 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: AppColors.surface,
             content: Text(
               "\"$query\" ile eşleşen ülke yok",
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColors.textPrimary),
             ),
           ),
         );
       return;
     }
 
-    // Liste hiç yüklenmediyse (bağlantı hatası) yazılanla doğrudan dene.
+    // Liste hiç yüklenmediyse yazılanla doğrudan dene.
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -249,7 +205,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ---------------- FILTER SHEET ----------------
   Future<void> openFilter() async {
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
@@ -273,7 +228,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Elimizdeki ülkelerde geçen benzersiz dil sayısı.
-  /// Önceden "7000+" diye sabit bir sayı yazılıydı; artık gerçek veri.
   int get _languageCount {
     final all = <String>{};
     for (final c in allCountries) {
@@ -282,197 +236,11 @@ class _HomePageState extends State<HomePage> {
     return all.length;
   }
 
-  // ---------------- HERO ----------------
-  Widget _buildHeroCard() {
-    final countryCount = allCountries.isEmpty ? "195" : "${allCountries.length}";
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.heroStart, AppColors.headerEnd],
-          ),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.borderAccent),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.explore, color: AppColors.accent, size: 20),
-                SizedBox(width: 10),
-                Text(
-                  "Dünyayı Keşfet",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              "Ülkeler, bayraklar ve diller — güncel verilerle",
-              style: TextStyle(color: AppColors.textBody, fontSize: 13),
-            ),
-            const SizedBox(height: 22),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _StatBox(
-                  icon: Icons.public,
-                  value: countryCount,
-                  label: "Ülke",
-                ),
-                _StatBox(
-                  icon: Icons.card_travel,
-                  value: "${VisaDatabase.recordCount}",
-                  label: "Vize kaydı",
-                ),
-                _StatBox(
-                  icon: Icons.language,
-                  value: "$_languageCount",
-                  label: "Dil",
-                ),
-                _StatBox(
-                  icon: Icons.flash_on,
-                  value: isLoading ? "..." : "GÜNCEL",
-                  label: "Veri",
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---------------- SEARCH BAR ----------------
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        height: 60,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 14),
-              child: Icon(Icons.search, color: AppColors.textMuted),
-            ),
-            Expanded(
-              child: TextField(
-                controller: _searchCtrl,
-                focusNode: _focusNode,
-                style: const TextStyle(color: Colors.white),
-                onSubmitted: (_) => _onSearchSubmitted(),
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  hintText: _isActive ? "" : _currentHint,
-                  hintStyle: const TextStyle(color: AppColors.textMuted),
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            if (_searchCtrl.text.isNotEmpty)
-              IconButton(
-                icon: const Icon(Icons.close, color: AppColors.textMuted, size: 18),
-                onPressed: () => _searchCtrl.clear(),
-              ),
-            SizedBox(
-              width: 44,
-              height: 44,
-              child: Material(
-                color: AppColors.accent,
-                borderRadius: BorderRadius.circular(10),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: _onSearchSubmitted,
-                  child: const Icon(
-                    Icons.arrow_forward,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---------------- SMART CARD ----------------
-  Widget _buildSmartCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        margin: const EdgeInsets.only(top: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              AppColors.travelCardStart,
-              AppColors.travelCardEnd,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.public, color: Colors.black),
-            const SizedBox(width: 14),
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Seyahat Modu",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Vize, pasaport ve kimlik kurallarına bak",
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-            GestureDetector(
-              onTap: openFilter,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.accentDeep,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Text(
-                  "Kuralları gör",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ---------------- AKTİF FİLTRE SATIRI ----------------
   Widget _buildFilterBar() {
-    final hasFilter = _visaFilter != null || _entryFilter != null;
-    if (!hasFilter) return const SizedBox.shrink();
+    if (_visaFilter == null && _entryFilter == null) {
+      return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
@@ -514,95 +282,10 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Text(
         text,
-        style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  // ---------------- ÜLKE KARTI ----------------
-  Widget _countryCard(Country country) {
-    final name = country.name;
-    final capital = country.capital;
-    final flag = country.flag;
-    final visa = country.visa;
-
-    return InkWell(
-      onTap: () => _openCountry(country),
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceRaised,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: Image.network(
-                flag,
-                width: 48,
-                height: 34,
-                fit: BoxFit.cover,
-                semanticLabel: "$name bayrağı",
-                errorBuilder: (_, __, ___) => Container(
-                  width: 48,
-                  height: 34,
-                  color: AppColors.border,
-                  child: const Icon(
-                    Icons.flag,
-                    size: 16,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    capital,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (visa != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.visa(visa).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.visa(visa)),
-                ),
-                child: Text(
-                  Labels.visa(visa),
-                  style: TextStyle(color: AppColors.visa(visa), fontSize: 10),
-                ),
-              ),
-            const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.textMuted,
-              size: 18,
-            ),
-          ],
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -616,73 +299,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    if (errorMessage != null) {
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            const Icon(Icons.cloud_off, color: AppColors.textMuted, size: 40),
-            const SizedBox(height: 12),
-            const Text(
-              "Veriler alınamadı",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: loadCountries,
-              icon: const Icon(Icons.refresh),
-              label: const Text("Tekrar dene"),
-            ),
-            if (CountryService.isUsingDemoKey)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(top: 20),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.warningSoft,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.warning),
-                ),
-                child: const Text(
-                  "Şu an demo API anahtarı kullanılıyor.\n"
-                  "restcountries.com'dan ücretsiz anahtar alıp uygulamayı "
-                  "şöyle başlat:\n\n"
-                  "flutter run --dart-define=RC_API_KEY=anahtarin",
-                  style: TextStyle(
-                    color: AppColors.warning,
-                    fontSize: 12,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            const SizedBox(height: 20),
-            // Teknik detay - hatayı bulmak için
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: SelectableText(
-                errorMessage!,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 11,
-                  height: 1.4,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
+    if (errorMessage != null) return _buildError();
 
     if (countries.isEmpty) {
       return Center(
@@ -700,10 +317,81 @@ class _HomePageState extends State<HomePage> {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       itemCount: countries.length,
-      itemBuilder: (_, index) => _countryCard(countries[index]),
+      itemBuilder: (_, index) => CountryCard(
+        country: countries[index],
+        onTap: () => _openCountry(countries[index]),
+      ),
     );
   }
 
+  Widget _buildError() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          const Icon(Icons.cloud_off, color: AppColors.textMuted, size: 40),
+          const SizedBox(height: 12),
+          const Text(
+            "Veriler alınamadı",
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: loadCountries,
+            icon: const Icon(Icons.refresh),
+            label: const Text("Tekrar dene"),
+          ),
+          if (CountryService.isUsingDemoKey)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.warningSoft,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.warning),
+              ),
+              child: const Text(
+                "Şu an demo API anahtarı kullanılıyor.\n"
+                "restcountries.com'dan ücretsiz anahtar alıp uygulamayı "
+                "şöyle başlat:\n\n"
+                "flutter run --dart-define=RC_API_KEY=anahtarin",
+                style: TextStyle(
+                  color: AppColors.warning,
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          const SizedBox(height: 20),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceRaised,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: SelectableText(
+              errorMessage!,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------- SAYFA ----------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -714,11 +402,21 @@ class _HomePageState extends State<HomePage> {
           children: [
             HomeHeader(onPlay: _openGame),
             const SizedBox(height: 16),
-            _buildHeroCard(),
+            HeroCard(
+              countryCount: allCountries.length,
+              visaRuleCount: VisaDatabase.recordCount,
+              languageCount: _languageCount,
+              isLoading: isLoading,
+            ),
             const SizedBox(height: 16),
-            _buildSearchBar(),
-            _buildSmartCard(),
-            _buildDataNotice(),
+            CountrySearchField(
+              controller: _searchCtrl,
+              focusNode: _focusNode,
+              hint: _isActive ? "" : _hints[_hintIndex],
+              onSubmit: _onSearchSubmitted,
+            ),
+            TravelModeCard(onTap: openFilter),
+            DataNotice(loadedCount: allCountries.length),
             _buildFilterBar(),
             const SizedBox(height: 4),
             Expanded(child: _buildResults()),
