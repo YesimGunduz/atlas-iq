@@ -29,13 +29,19 @@ ve bu sürüm anahtar istiyor. Ücretsiz:
 
 ### 2. Çalıştır
 
+Anahtarı bir dosyaya koy — hem terminal hem IDE oradan okusun:
+
 ```bash
+cp env.example.json env.json     # sonra env.json'u acip anahtarini yaz
 flutter pub get
-flutter run --dart-define=RC_API_KEY=senin_anahtarin
+flutter run --dart-define-from-file=env.json
 ```
 
-Anahtar koda gömülü değil; `--dart-define` ile veriliyor, böylece git'e sızmıyor.
-IDE'den çalıştırıyorsan aynı parametreyi çalıştırma yapılandırmana ekle.
+`env.json` `.gitignore`'da, yani anahtarın git'e sızmaz.
+
+VS Code / Android Studio kullanıyorsan yeşil ▶ düğmesi de aynı dosyayı
+okuyor (`.vscode/launch.json` hazır). **Düz `flutter run` çalıştırma** —
+anahtar geçmez ve uygulama demo anahtarına düşer.
 
 > Not: `--dart-define` anahtarı kaynak koddan çıkarır ama derlenmiş uygulamanın
 > içinde metin olarak kalır. Ücretsiz bir anahtar için sorun değil; ücretli bir

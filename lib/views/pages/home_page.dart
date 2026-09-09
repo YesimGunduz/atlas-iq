@@ -301,18 +301,7 @@ class _HomePageState extends State<HomePage> {
 
     if (errorMessage != null) return _buildError();
 
-    if (countries.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            VisaEngine.emptyMessage(_visaFilter, _entryFilter),
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textSecondary),
-          ),
-        ),
-      );
-    }
+    if (countries.isEmpty) return _buildEmpty();
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
@@ -320,6 +309,87 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (_, index) => CountryCard(
         country: countries[index],
         onTap: () => _openCountry(countries[index]),
+      ),
+    );
+  }
+
+  /// Liste neden boş? Üç ayrı sebep var ve kullanıcıya hangisi olduğunu
+  /// söylemek gerekiyor; hepsine "Ülke bulunamadı" demek yardımcı değil.
+  Widget _buildEmpty() {
+    final query = _searchCtrl.text.trim();
+    final hasFilter = _visaFilter != null || _entryFilter != null;
+
+    String title;
+    String? detail;
+    IconData icon;
+
+    if (allCountries.isEmpty) {
+      // Hiç veri yüklenmemiş
+      icon = Icons.cloud_off;
+      title = "Ülke listesi boş";
+      detail = "Veri yüklenemedi. Aşağıdan tekrar deneyebilirsin.";
+    } else if (query.isNotEmpty && hasFilter) {
+      icon = Icons.search_off;
+      title = "\"$query\" bu filtrelerle bulunamadı";
+      detail = "Filtreyi temizleyip tekrar dene.";
+    } else if (query.isNotEmpty) {
+      icon = Icons.search_off;
+      title = "\"$query\" ile eşleşen ülke yok";
+      detail = "Türkçe adıyla da arayabilirsin (almanya, abd, ingiltere).";
+    } else {
+      icon = Icons.filter_alt_off;
+      title = VisaEngine.emptyMessage(_visaFilter, _entryFilter);
+      detail = "${allCountries.length} ülke yüklü, filtreye uyan yok.";
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.textMuted, size: 40),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              detail,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 18),
+            if (allCountries.isEmpty)
+              ElevatedButton.icon(
+                onPressed: loadCountries,
+                icon: const Icon(Icons.refresh),
+                label: const Text("Tekrar dene"),
+              )
+            else if (hasFilter)
+              TextButton.icon(
+                onPressed: _clearFilters,
+                icon: const Icon(Icons.filter_alt_off),
+                label: const Text("Filtreyi temizle"),
+              )
+            else if (query.isNotEmpty)
+              TextButton.icon(
+                onPressed: _searchCtrl.clear,
+                icon: const Icon(Icons.close),
+                label: const Text("Aramayı temizle"),
+              ),
+          ],
+        ),
       ),
     );
   }

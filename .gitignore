@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# API anahtari - env.example.json'i kopyalayip env.json yap
+env.json

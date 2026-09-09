@@ -38,6 +38,10 @@ class CountryService {
 
   static const Duration _timeout = Duration(seconds: 20);
 
+  /// Bu sayıdan az ülke içeren bir liste "kullanılabilir" sayılmaz.
+  /// Gerçek veri 249 ülke; demo anahtarı 1 ülke döndürüyor.
+  static const int _minUsableCount = 50;
+
   static List<Country>? _cache;
 
   /// API cevabında `data._demo` bloğu geldiyse true.
@@ -143,7 +147,17 @@ class CountryService {
 
     if (!forceRefresh) {
       final cached = await CountryCache.read();
-      if (cached != null && cached.isNotEmpty) {
+
+      // Diskte yarım bir liste varsa (örneğin demo anahtarıyla açılmışken
+      // kaydedilen tek ülke) onu kullanma; sil ve ağdan tazele. Aksi hâlde
+      // gerçek anahtarla çalıştırsan bile uygulama diskteki bozuk listeye
+      // takılı kalıyor.
+      if (cached != null && cached.length < _minUsableCount) {
+        debugPrint(
+          "Önbellekte yalnızca ${cached.length} ülke var, atlanıyor.",
+        );
+        await CountryCache.clear();
+      } else if (cached != null && cached.isNotEmpty) {
         _cache = cached;
         loadedFromCache = true;
         dataDate = await CountryCache.savedAt();
@@ -157,8 +171,24 @@ class CountryService {
     loadedFromCache = false;
     dataDate = DateTime.now();
 
-    await CountryCache.write(fresh);
+    if (_worthCaching(fresh)) {
+      await CountryCache.write(fresh);
+    }
     return fresh;
+  }
+
+  /// Bu liste saklanmaya değer mi?
+  ///
+  /// Demo cevabını ya da yarım kalmış bir listeyi diske yazmak, sonraki
+  /// açılışlarda uygulamayı o bozuk veriye kilitliyor.
+  static bool _worthCaching(List<Country> list) {
+    if (demoResponseDetected) return false;
+    if (list.length < _minUsableCount) return false;
+
+    final total = reportedTotal;
+    if (total != null && list.length < total) return false;
+
+    return true;
   }
 
   /// Önbellekten açıldıysa ve veri bayatsa sessizce tazeler.
@@ -175,7 +205,9 @@ class CountryService {
       loadedFromCache = false;
       dataDate = DateTime.now();
 
-      await CountryCache.write(fresh);
+      if (_worthCaching(fresh)) {
+        await CountryCache.write(fresh);
+      }
       return changed;
     } catch (e) {
       // Tazeleme başarısızsa elimizdeki önbellekle devam ediyoruz.
